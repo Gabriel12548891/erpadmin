@@ -4,7 +4,7 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Inicio</title>
+    <title>Inicio | Quinua Comercial</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
@@ -305,7 +305,7 @@
                             aria-expanded="false">
                             <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-1.jpg"
                                 alt="Header Avatar">
-                            <span class="d-none d-xl-inline-block ms-1 fw-medium">Shawn L.</span>
+                            <span class="d-none d-xl-inline-block ms-1 fw-medium">Usuario</span>
                             <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
@@ -373,277 +373,8 @@
         <div class="main-content">
 
             <div class="page-content">
-                <div class="container-fluid">
-
-                    <!-- start page title -->
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                <h4 class="mb-sm-0 font-size-18">Inventario</h4>
-
-                                <div class="page-title-right">
-                                    <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Pages</a></li>
-                                        <li class="breadcrumb-item active">Inventario</li>
-                                    </ol>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end page title -->
-
-                    <div class="container mt-4">
-
-                        <!-- Nuevo bloque: DataTable adaptada a web y móvil -->
-                        <section id="lotes-registrados">
-                            <h2>Lotes Registrados</h2>
-
-                            <!-- Vista de tabla para web (desktop/tablet) -->
-                            <div class="table-responsive d-none d-md-block">
-                                <table class="table table-bordered" id="lotes-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Código</th>
-                                            <th>Fecha</th>
-                                            <th>Productor</th>
-                                            <th>Procedencia</th>
-                                            <th>Variedad</th>
-                                            <th>Costo/Kg</th>
-                                            <th>Costales</th>
-                                            <th>Peso</th>
-                                            <th>Total</th>
-                                            <th>Costo Estiva/Desestima</th>
-                                            <th>Costo Flete</th>
-                                            <th>Resp. Recepción</th>
-                                            <th>Peso Bruto</th>
-                                            <th>Descuento</th>
-                                            <th>Peso Neto</th>
-                                            <th>% Humedad</th>
-                                            <th>Costo Unitario Real</th>
-                                            <th>Ubicación</th>
-                                            <th>Condición de pago</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>L0008</td>
-                                            <td>29/1/2025</td>
-                                            <td>Nelson</td>
-                                            <td>Ayacucho</td>
-                                            <td>Roja</td>
-                                            <td>S/. 5.00</td>
-                                            <td>16.00</td>
-                                            <td>265.00 Kg</td>
-                                            <td>S/. 1,325.00</td>
-                                            <td>S/. 50.00</td>
-                                            <td>S/. 30.00</td>
-                                            <td>Carlos</td>
-                                            <td>270.00 Kg</td>
-                                            <td>S/. 0.00</td>
-                                            <td>265.00 Kg</td>
-                                            <td>12%</td>
-                                            <td>S/. 5.10</td>
-                                            <td>Almacén 1</td>
-                                            <td>Pagado</td>
-                                            <td><!-- Botones de acción --></td>
-                                        </tr>
-                                        <tr>
-                                            <td>L0007</td>
-                                            <td>29/1/2025</td>
-                                            <td>Nelson</td>
-                                            <td>Ayacucho</td>
-                                            <td>Negra</td>
-                                            <td>S/. 5.00</td>
-                                            <td>6.00</td>
-                                            <td>577.00 Kg</td>
-                                            <td>S/. 2,885.00</td>
-                                            <td>S/. 40.00</td>
-                                            <td>S/. 25.00</td>
-                                            <td>Ana</td>
-                                            <td>580.00 Kg</td>
-                                            <td>S/. 0.00</td>
-                                            <td>577.00 Kg</td>
-                                            <td>10%</td>
-                                            <td>S/. 5.05</td>
-                                            <td>Almacén 2</td>
-                                            <td>X Cancelar</td>
-                                            <td><!-- Botones de acción --></td>
-                                        </tr>
-                                        <tr>
-                                            <td>L0006</td>
-                                            <td>29/1/2025</td>
-                                            <td>Luis</td>
-                                            <td>Ayacucho</td>
-                                            <td>Negra</td>
-                                            <td>S/. 5.50</td>
-                                            <td>14.00</td>
-                                            <td>812.00 Kg</td>
-                                            <td>S/. 4,466.00</td>
-                                            <td>S/. 60.00</td>
-                                            <td>S/. 35.00</td>
-                                            <td>María</td>
-                                            <td>820.00 Kg</td>
-                                            <td>S/. 0.00</td>
-                                            <td>812.00 Kg</td>
-                                            <td>11%</td>
-                                            <td>S/. 5.60</td>
-                                            <td>Almacén 3</td>
-                                            <td>Pagado</td>
-                                            <td><!-- Botones de acción --></td>
-                                        </tr>
-                                        <tr>
-                                            <td>L0005</td>
-                                            <td>29/1/2025</td>
-                                            <td>Luis</td>
-                                            <td>Ayacucho</td>
-                                            <td>Negra</td>
-                                            <td>S/. 5.00</td>
-                                            <td>20.00</td>
-                                            <td>828.00 Kg</td>
-                                            <td>S/. 4,140.00</td>
-                                            <td>S/. 55.00</td>
-                                            <td>S/. 28.00</td>
-                                            <td>Pedro</td>
-                                            <td>835.00 Kg</td>
-                                            <td>S/. 0.00</td>
-                                            <td>828.00 Kg</td>
-                                            <td>13%</td>
-                                            <td>S/. 5.05</td>
-                                            <td>Almacén 1</td>
-                                            <td>X Cancelar</td>
-                                            <td><!-- Botones de acción --></td>
-                                        </tr>
-                                        <tr>
-                                            <td>L0004</td>
-                                            <td>29/1/2025</td>
-                                            <td>Luis</td>
-                                            <td>Manallasacc</td>
-                                            <td>Blanca</td>
-                                            <td>S/. 6.00</td>
-                                            <td>4.00</td>
-                                            <td>340.00 Kg</td>
-                                            <td>S/. 2,040.00</td>
-                                            <td>S/. 45.00</td>
-                                            <td>S/. 20.00</td>
-                                            <td>Elena</td>
-                                            <td>345.00 Kg</td>
-                                            <td>S/. 0.00</td>
-                                            <td>340.00 Kg</td>
-                                            <td>9%</td>
-                                            <td>S/. 6.10</td>
-                                            <td>Almacén 2</td>
-                                            <td>Pagado</td>
-                                            <td><!-- Botones de acción --></td>
-                                        </tr>
-                                        <tr>
-                                            <td>L0003</td>
-                                            <td>28/1/2025</td>
-                                            <td>Juan</td>
-                                            <td>Ayacucho</td>
-                                            <td>Negra</td>
-                                            <td>S/. 5.50</td>
-                                            <td>5.00</td>
-                                            <td>320.00 Kg</td>
-                                            <td>S/. 1,760.00</td>
-                                            <td>S/. 50.00</td>
-                                            <td>S/. 30.00</td>
-                                            <td>Rosa</td>
-                                            <td>325.00 Kg</td>
-                                            <td>S/. 0.00</td>
-                                            <td>320.00 Kg</td>
-                                            <td>12%</td>
-                                            <td>S/. 5.60</td>
-                                            <td>Almacén 3</td>
-                                            <td>Pagado</td>
-                                            <td><!-- Botones de acción --></td>
-                                        </tr>
-                                        <tr>
-                                            <td>L0002</td>
-                                            <td>28/1/2025</td>
-                                            <td>Juan</td>
-                                            <td>Muruncancha</td>
-                                            <td>Blanca</td>
-                                            <td>S/. 6.00</td>
-                                            <td>2.00</td>
-                                            <td>160.00 Kg</td>
-                                            <td>S/. 960.00</td>
-                                            <td>S/. 40.00</td>
-                                            <td>S/. 25.00</td>
-                                            <td>Cecilia</td>
-                                            <td>162.00 Kg</td>
-                                            <td>S/. 0.00</td>
-                                            <td>160.00 Kg</td>
-                                            <td>10%</td>
-                                            <td>S/. 6.10</td>
-                                            <td>Almacén 1</td>
-                                            <td>X Cancelar</td>
-                                            <td><!-- Botones de acción --></td>
-                                        </tr>
-                                        <tr>
-                                            <td>L0001</td>
-                                            <td>28/1/2025</td>
-                                            <td>Juan</td>
-                                            <td>Manallasacc</td>
-                                            <td>Blanca</td>
-                                            <td>S/. 5.00</td>
-                                            <td>5.00</td>
-                                            <td>152.00 Kg</td>
-                                            <td>S/. 760.00</td>
-                                            <td>S/. 45.00</td>
-                                            <td>S/. 28.00</td>
-                                            <td>Andrés</td>
-                                            <td>155.00 Kg</td>
-                                            <td>S/. 0.00</td>
-                                            <td>152.00 Kg</td>
-                                            <td>11%</td>
-                                            <td>S/. 5.10</td>
-                                            <td>Almacén 2</td>
-                                            <td>Pagado</td>
-                                            <td><!-- Botones de acción --></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Vista en tarjetas para móvil -->
-                            <div class="d-block d-md-none">
-                                <!-- Para cada registro se crea una tarjeta -->
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Código: L0008</h5>
-                                        <p class="card-text">
-                                            <strong>Fecha:</strong> 29/1/2025<br>
-                                            <strong>Productor:</strong> Nelson<br>
-                                            <strong>Procedencia:</strong> Ayacucho<br>
-                                            <strong>Variedad:</strong> Roja<br>
-                                            <strong>Costo/Kg:</strong> S/. 5.00<br>
-                                            <strong>Costales:</strong> 16.00<br>
-                                            <strong>Peso:</strong> 265.00 Kg<br>
-                                            <strong>Total:</strong> S/. 1,325.00<br>
-                                            <strong>Costo Estiva/Desestima:</strong> S/. 50.00<br>
-                                            <strong>Costo Flete:</strong> S/. 30.00<br>
-                                            <strong>Resp. Recepción:</strong> Carlos<br>
-                                            <strong>Peso Bruto:</strong> 270.00 Kg<br>
-                                            <strong>Descuento:</strong> S/. 0.00<br>
-                                            <strong>Peso Neto:</strong> 265.00 Kg<br>
-                                            <strong>% Humedad:</strong> 12%<br>
-                                            <strong>Costo Unitario Real:</strong> S/. 5.10<br>
-                                            <strong>Ubicación:</strong> Almacén 1<br>
-                                            <strong>Condición de pago:</strong> Pagado
-                                        </p>
-                                        <!-- Placeholder para botones -->
-                                        <div><!-- Botones de acción --></div>
-                                    </div>
-                                </div>
-                                <!-- Repite tarjetas para cada fila de datos -->
-                                <!-- ...otras tarjetas... -->
-                            </div>
-                        </section>
-                    </div>
-
-                </div> <!-- container-fluid -->
+                <!-- iframe con posición y tamaño ajustados -->
+                <iframe src="http://127.0.0.1:52251/index.html" frameborder="0" style="width: 100%; height: calc(100vh - 200px); display: block;"></iframe>
             </div>
             <!-- End Page-content -->
 
@@ -652,7 +383,7 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-sm-12">
-                            <script>document.write(new Date().getFullYear())</script> Jassa.
+                            <script>document.write(new Date().getFullYear())</script> gng.
                         </div>
 
                     </div>
@@ -670,7 +401,7 @@
         <div data-simplebar class="h-100">
             <div class="rightbar-title d-flex align-items-center p-3">
 
-                <h5 class="m-0 me-2">Theme Customizer</h5>
+                <h5 class="m-0 me-2">Cambia Tema</h5>
 
                 <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
                     <i class="mdi mdi-close noti-icon"></i>
@@ -818,32 +549,32 @@
     <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.colVis.min.js"></script>
     <!-- Inicialización de DataTables con extensión Buttons y Responsive -->
     <script>
-      $(document).ready(function() {
-        $('#lotes-table').DataTable({
-          responsive: true,
-          autoWidth: false,
-          dom: 'Bfrtip',
-          buttons: [{
-              extend: 'colvis',
-              text: 'Seleccionar columnas',
-              collectionLayout: 'fixed two-column',
-              columnText: function ( dt, idx, title ) {
-                  return title + ' (' + ( dt.column(idx).visible() ? 'Visible' : 'Oculto' ) + ')';
-              }
-          }],
-          columnDefs: [
-            // Definir visibilidad predeterminada: columnas principales visibles: 0, 1, 2, 4 y 8
-            { targets: [0,1,2,4,8], visible: true },
-            { targets: [3,5,6,7,9,10,11,12,13,14,15,16,17,18,19], visible: false },
-            { targets: 0, responsivePriority: 1 },
-            { targets: 1, responsivePriority: 2 },
-            { targets: 2, responsivePriority: 3 },
-            { targets: 4, responsivePriority: 4 },
-            { targets: 8, responsivePriority: 5 },
-            { targets: '_all', responsivePriority: 100 }
-          ]
+        $(document).ready(function () {
+            $('#lotes-table').DataTable({
+                responsive: true,
+                autoWidth: false,
+                dom: 'Bfrtip',
+                buttons: [{
+                    extend: 'colvis',
+                    text: 'Seleccionar columnas',
+                    collectionLayout: 'fixed two-column',
+                    columnText: function (dt, idx, title) {
+                        return title + ' (' + (dt.column(idx).visible() ? 'Visible' : 'Oculto') + ')';
+                    }
+                }],
+                columnDefs: [
+                    // Definir visibilidad predeterminada: columnas principales visibles: 0, 1, 2, 4 y 8
+                    { targets: [0, 1, 2, 4, 8], visible: true },
+                    { targets: [3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], visible: false },
+                    { targets: 0, responsivePriority: 1 },
+                    { targets: 1, responsivePriority: 2 },
+                    { targets: 2, responsivePriority: 3 },
+                    { targets: 4, responsivePriority: 4 },
+                    { targets: 8, responsivePriority: 5 },
+                    { targets: '_all', responsivePriority: 100 }
+                ]
+            });
         });
-      });
     </script>
 
     <script src="assets/js/app.js"></script>
