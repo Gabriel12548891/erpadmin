@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,18 +27,15 @@
 
     <style>
         /* ...existing styles... */
-        
-        .table th {
-            cursor: pointer;
-        }
+        .table th { cursor: pointer; }
     </style>
 </head>
-
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">Despachos</a>
-
+            <!-- ...existing navigation... -->
+        </div>
     </nav>
     <div class="container py-4">
         <!-- Accordion para secciones -->
@@ -106,8 +102,7 @@
                                         <legend class="w-auto px-2">Datos de la Orden de Compra</legend>
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
-                                                <label for="ordenCompraNumero" class="form-label">Número de
-                                                    Orden</label>
+                                                <label for="ordenCompraNumero" class="form-label">Número de Orden</label>
                                                 <input type="text" class="form-control" id="ordenCompraNumero" placeholder="Ingrese n° de orden">
                                             </div>
                                             <div class="col-md-4 mb-3">
@@ -121,8 +116,7 @@
                                         </div>
                                     </fieldset>
                                     <div class="mb-3">
-                                        <p class="small text-muted">Seleccione los lotes disponibles abajo para agregar la cantidad a vender. El total se calculará según la suma de las cantidades seleccionadas.
-                                        </p>
+                                        <p class="small text-muted">Seleccione los lotes disponibles abajo para agregar la cantidad a vender. El total se calculará según la suma de las cantidades seleccionadas.</p>
                                         <button type="submit" class="btn btn-primary">Registrar Venta</button>
                                     </div>
                                 </form>
@@ -136,8 +130,7 @@
                             <div class="card-body">
                                 <div class="mb-2">
                                     <input type="checkbox" id="toggleSoldOut">
-                                    <label for="toggleSoldOut" class="ms-1">Ocultar lotes vendidos en su
-                                        totalidad</label>
+                                    <label for="toggleSoldOut" class="ms-1">Ocultar lotes vendidos en su totalidad</label>
                                 </div>
                                 <div class="table-responsive">
                                     <table id="lotesVentaTable" class="table table-hover">
@@ -194,25 +187,5 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/numeral@2.0.6/numeral.min.js"></script>
     <script src="/public/assets/js/viewsjs/despachos.js"></script>
-    <!-- JAVASCRIPT -->
-    <script src="/public/assets/js/jquery.min.js"></script>
-    <script src="/public/assets/js/bootstrap.bundle.min.js"></script>
-    <script src="/public/assets/js/metisMenu.min.js"></script>
-    <script src="/public/assets/js/simplebar.min.js"></script>
-    <script src="/public/assets/js/waves.min.js"></script>
-    <script src="/public/assets/js/feather.min.js"></script>
-    <!-- pace js -->
-    <script src="/public/assets/js/pace.min.js"></script>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-    <!-- Auth JS -->
-    <script src="/public/assets/js/auth.js"></script>
-
-    <script src="/public/assets/js/app.js"></script>
 </body>
-
 </html>
