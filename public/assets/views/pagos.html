@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión Comercial de Quinua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <style>
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .floating-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+        
+        .floating-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: none;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: #555;
+            text-align: left;
+            /* Agregado para alinear a la izquierda */
+            cursor: pointer;
+            /* Cambia el cursor a "manito" */
+        }
+        
+        .badge {
+            padding: 0.5em 1em;
+        }
+        
+        .nav-tabs {
+            border: none;
+            margin-bottom: 1rem;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin-right: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .table {
+                font-size: 0.875rem;
+            }
+            .table td,
+            .table th {
+                padding: 0.5rem;
+            }
+            .btn-group-sm>.btn {
+                padding: 0.25rem 0.4rem;
+                font-size: 0.75rem;
+            }
+            .bi {
+                font-size: 0.875rem;
+            }
+        }
+        
+        .sticky-top {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 0.35em 0.65em;
+        }
+        
+        .pagado {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .parcial {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .pendiente {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .dashboard-card {
+            transition: all 0.3s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .data-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .data-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .progress {
+            height: 8px;
+            margin-top: 8px;
+        }
+        /* Estilos para vista de tarjetas en móvil */
+        
+        @media (max-width: 768px) {
+            .table-view {
+                display: none;
+            }
+            .card-view {
+                display: block;
+            }
+            .lote-card {
+                border: 1px solid rgba(0, 0, 0, .125);
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                background: white;
+            }
+            .lote-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 0.75rem;
+                gap: 0.5rem;
+            }
+            .lote-header-info {
+                display: flex;
+                flex-direction: column;
+            }
+            .lote-variedad {
+                font-size: 0.75rem;
+                color: #666;
+            }
+            .lote-info {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+                margin-bottom: 0.5rem;
+                font-size: 0.875rem;
+            }
+            .lote-info-item {
+                display: flex;
+                flex-direction: column;
+            }
+            .lote-info-label {
+                color: #666;
+                font-size: 0.75rem;
+                margin-bottom: 0.1rem;
+            }
+            .lote-info-value {
+                font-weight: 500;
+                line-height: 1.2;
+            }
+            .lote-payment-info {
+                border-top: 1px solid #eee;
+                padding-top: 0.75rem;
+                margin-top: 0.5rem;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .table-view {
+                display: block;
+            }
+            .card-view {
+                display: none;
+            }
+        }
+        /* Estilos para timeline de pagos */
+        
+        .payment-timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .payment-timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background-color: #e0e0e0;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+        
+        .timeline-container {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+        }
+        
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: white;
+            border: 4px solid #0d6efd;
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .left {
+            left: 0;
+        }
+        
+        .right {
+            left: 50%;
+        }
+        
+        .right::after {
+            left: -10px;
+        }
+        
+        .timeline-content {
+            padding: 15px;
+            background-color: white;
+            position: relative;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media screen and (max-width: 768px) {
+            .payment-timeline::after {
+                left: 31px;
+            }
+            .timeline-container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            .timeline-container::before {
+                left: 60px;
+                border: medium solid white;
+                border-width: 10px 10px 10px 0;
+                border-color: transparent white transparent transparent;
+            }
+            .left::after,
+            .right::after {
+                left: 21px;
+            }
+            .right {
+                left: 0%;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="loading" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-cash-coin me-2"></i>Gestión Comercial
+            </a>
+            <span class="navbar-text text-white" id="connectionStatus">
+                <span class="badge bg-success">Online</span>
+            </span>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- Panel de estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-boxes me-2"></i>Total Lotes</div>
+                        <div class="data-value" id="totalLotes">0</div>
+                        <div class="small text-muted" id="totalPesoLotes">0 Kg</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-x-circle me-2"></i>Pagos Pendientes</div>
+                        <div class="data-value text-danger" id="totalPendiente">S/. 0.00</div>
+                        <div class="small text-muted" id="porcentajePendiente">0% del total</div>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" id="progressPendiente" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-cash-coin me-2"></i>Pagos Realizados</div>
+                        <div class="data-value text-success" id="totalPagado">S/. 0.00</div>
+                        <div class="small text-muted" id="porcentajePagado">0% del total</div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" id="progressPagado" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-truck me-2"></i>Servicios Pendientes</div>
+                        <div class="data-value text-warning" id="serviciosPendientes">S/. 0.00</div>
+                        <div class="small text-muted" id="porcentajeServicios">0% del total de gastos</div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" id="progressServicios" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de navegación -->
+        <ul class="nav nav-tabs mb-4" id="comercialTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="lotes-tab" data-bs-toggle="tab" data-bs-target="#lotes" type="button" role="tab" aria-controls="lotes" aria-selected="true">
+                    <i class="bi bi-boxes me-2"></i>Lotes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pagos-tab" data-bs-toggle="tab" data-bs-target="#pagos" type="button" role="tab" aria-controls="pagos" aria-selected="false">
+                    <i class="bi bi-cash me-2"></i>Pagos a Productores
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="servicios-tab" data-bs-toggle="tab" data-bs-target="#servicios" type="button" role="tab" aria-controls="servicios" aria-selected="false">
+                    <i class="bi bi-truck me-2"></i>Servicios
+                </button>
+            </li>
+        </ul>
+
+        <!-- Contenido de pestañas -->
+        <div class="tab-content" id="comercialTabsContent">
+            <!-- Pestaña de Lotes -->
+            <div class="tab-pane fade show active" id="lotes" role="tabpanel" aria-labelledby="lotes-tab">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-boxes me-2"></i>Lotes Comerciales
+                        </h5>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary" id="btnTodos">Todos</button>
+                            <button class="btn btn-outline-success" id="btnPagados">Pagados</button>
+                            <button class="btn btn-outline-warning" id="btnParciales">Pagos Parciales</button>
+                            <button class="btn btn-outline-danger" id="btnPendientes">Pendientes</button>
+                        </div>
+                    </div>
+                    <!-- Vista de tabla para pantallas grandes -->
+                    <div class="card-body p-0 table-view">
+                        <div class="table-responsive">
+                            <table id="lotesComercialTable" class="table table-hover align-middle">
+                                <thead class="sticky-top bg-light">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Fecha</th>
+                                        <th>Productor</th>
+                                        <th>Procedencia</th>
+                                        <th>Peso</th>
+                                        <th>Costo Total</th>
+                                        <th>Pagado</th>
+                                        <th>Pendiente</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaLotesComercial">
+                                    <!-- Los lotes se cargarán dinámicamente aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Vista de tarjetas para móviles -->
+                    <div class="card-body card-view" id="cardViewLotesComercial">
+                        <!-- Las tarjetas se cargarán dinámicamente aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de Pagos a Productores -->
+            <div class="tab-pane fade" id="pagos" role="tabpanel" aria-labelledby="pagos-tab">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-cash me-2"></i>Pagos a Productores
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="pagosProductoresTable" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Productor</th>
+                                        <th>Lotes</th>
+                                        <th>Peso Total</th>
+                                        <th>Monto Total</th>
+                                        <th>Pagado</th>
+                                        <th>Pendiente</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaPagosProductores">
+                                    <!-- Los pagos a productores se cargarán dinámicamente aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de Servicios -->
+            <div class="tab-pane fade" id="servicios" role="tabpanel" aria-labelledby="servicios-tab">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-truck me-2"></i>Servicios Pendientes
+                        </h5>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary" id="btnTodosServicios">Todos</button>
+                            <button class="btn btn-outline-success" id="btnPagadosServicios">Pagados</button>
+                            <button class="btn btn-outline-danger" id="btnPendientesServicios">Pendientes</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="serviciosTable" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Proveedor</th>
+                                        <th>Tipo</th>
+                                        <th>Lote</th>
+                                        <th>Fecha</th>
+                                        <th>Motivo</th>
+                                        <th>Monto</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaServicios">
+                                    <!-- Los servicios se cargarán dinámicamente aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Registrar Pago -->
+    <div class="modal fade" id="modalRegistrarPago" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-cash me-2"></i>Registrar Pago
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pagoForm">
+                        <input type="hidden" id="pagoLoteId">
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Lote</label>
+                                <input type="text" class="form-control" id="pagoLoteCodigo" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Productor</label>
+                                <input type="text" class="form-control" id="pagoProductor" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Monto Total</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">S/.</span>
+                                    <input type="text" class="form-control" id="pagoMontoTotal" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Ya Pagado</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">S/.</span>
+                                    <input type="text" class="form-control" id="pagoYaPagado" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Pendiente</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">S/.</span>
+                                    <input type="text" class="form-control" id="pagoPendiente" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de Pago</label>
+                                <input type="date" class="form-control" id="pagoFecha" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Método de Pago</label>
+                                <select class="form-select" id="pagoMetodo" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="transferencia">Transferencia Bancaria</option>
+                                    <option value="cheque">Cheque</option>
+                                    <option value="yape">Yape</option>
+                                    <option value="plin">Plin</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Monto a Pagar</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">S/.</span>
+                                    <input type="number" step="0.01" class="form-control" id="pagoMonto" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Comprobante</label>
+                                <input type="text" class="form-control" id="pagoComprobante" placeholder="N° comprobante/referencia">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="pagoObservaciones" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btnGuardarPago">
+                        <i class="bi bi-save me-2"></i>Registrar Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Ver Historial de Pagos -->
+    <div class="modal fade" id="modalHistorialPagos" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-clock-history me-2"></i>Historial de Pagos
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Información del Lote</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Código:</strong> <span id="historialLoteCodigo"></span></p>
+                                <p><strong>Productor:</strong> <span id="historialLoteProductor"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Fecha de Compra:</strong> <span id="historialLoteFecha"></span></p>
+                                <p><strong>Monto Total:</strong> <span id="historialLoteTotal"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="border-bottom pb-2">Registro de Pagos</h6>
+
+                    <div class="payment-timeline" id="timelinePagos">
+                        <!-- Los pagos se cargarán dinámicamente aquí -->
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Pagado</h6>
+                                        <p class="card-text text-success h4" id="historialTotalPagado">S/. 0.00</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Pendiente</h6>
+                                        <p class="card-text text-danger h4" id="historialPendiente">S/. 0.00</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Progreso</h6>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-success" id="historialProgreso" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <small id="historialProgresoTexto">0%</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-success" id="btnNuevoPago">
+                        <i class="bi bi-plus-circle me-2"></i>Registrar Nuevo Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Registrar Pago de Servicio -->
+    <div class="modal fade" id="modalPagoServicio" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-truck me-2"></i>Pagar Servicio
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pagoServicioForm">
+                        <input type="hidden" id="servicioId">
+                        <input type="hidden" id="servicioLoteId">
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Proveedor</label>
+                                <input type="text" class="form-control" id="servicioProveedor" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo de Servicio</label>
+                                <input type="text" class="form-control" id="servicioTipo" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Lote</label>
+                                <input type="text" class="form-control" id="servicioLote" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Monto</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">S/.</span>
+                                    <input type="text" class="form-control" id="servicioMonto" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de Pago</label>
+                                <input type="date" class="form-control" id="servicioPagoFecha" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Método de Pago</label>
+                                <select class="form-select" id="servicioPagoMetodo" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="transferencia">Transferencia Bancaria</option>
+                                    <option value="cheque">Cheque</option>
+                                    <option value="yape">Yape</option>
+                                    <option value="plin">Plin</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Comprobante</label>
+                            <input type="text" class="form-control" id="servicioPagoComprobante" placeholder="N° comprobante/referencia">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="servicioPagoObservaciones" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btnGuardarPagoServicio">
+                        <i class="bi bi-save me-2"></i>Registrar Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/numeral@2.0.6/numeral.min.js"></script>
+    <script src="/public/assets/js/viewsjs/pagos.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+</body>
+
+</html>

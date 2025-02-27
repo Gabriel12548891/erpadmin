@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Estilos para optimizar el funcionamiento en iframe -->
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: auto;
+            background-color: transparent;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 10px;
+            padding-right: 10px;
+            flex: 1;
+        }
+        /* Mejoras para DataTables */
+        
+        #lotesTable {
+            width: 100% !important;
+        }
+        
+        .dataTables_wrapper {
+            width: 100% !important;
+        }
+        
+        .card-body {
+            padding: 0;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+        /* Para asegurar que se adapte a pantallas medianas */
+        
+        @media screen and (max-width: 1440px) {
+            .container {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            .table td,
+            .table th {
+                padding: 0.4rem 0.25rem;
+                font-size: 0.85rem;
+            }
+            .btn-group-sm>.btn {
+                padding: 0.15rem 0.3rem;
+                font-size: 0.8rem;
+            }
+            .card-header {
+                padding: 0.8rem;
+            }
+            .table-responsive {
+                max-height: calc(100vh - 280px);
+            }
+        }
+        /* Para pantallas muy pequeñas */
+        
+        @media screen and (max-height: 800px) {
+            .py-4 {
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            .card-header {
+                padding: 0.6rem;
+            }
+            .table-responsive {
+                max-height: calc(100vh - 250px);
+            }
+        }
+        /* Estilos para tarjetas dashboard */
+        
+        .dashboard-card {
+            transition: all 0.3s;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .data-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .data-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .progress {
+            height: 8px;
+            margin-top: 8px;
+        }
+    </style>
+    <title>Sistema de Carguíos de Quinua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="manifest" href="/public/assets/manifest/carguiosmanifest.json">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .floating-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+        
+        .floating-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+        
+        .card-header {
+            background: none;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .badge {
+            padding: 0.5em 1em;
+        }
+        
+        .nav-tabs {
+            border: none;
+            margin-bottom: 1rem;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin-right: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .table {
+                font-size: 0.875rem;
+            }
+            .table td,
+            .table th {
+                padding: 0.5rem;
+            }
+            .btn-group-sm>.btn {
+                padding: 0.25rem 0.4rem;
+                font-size: 0.75rem;
+            }
+            .bi {
+                font-size: 0.875rem;
+            }
+        }
+        
+        .sticky-top {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        
+        @media (max-width: 576px) {
+            .table-view {
+                display: none;
+            }
+            .card-view {
+                display: block;
+            }
+            .lote-card {
+                border: 1px solid rgba(0, 0, 0, .125);
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                background: white;
+            }
+            .lote-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 0.75rem;
+                gap: 0.5rem;
+            }
+            .lote-header-info {
+                display: flex;
+                flex-direction: column;
+            }
+            .lote-variedad {
+                font-size: 0.75rem;
+                color: #666;
+            }
+            .lote-info {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+                margin-bottom: 0.5rem;
+                font-size: 0.875rem;
+            }
+            .lote-info-item {
+                display: flex;
+                flex-direction: column;
+            }
+            .lote-info-label {
+                color: #666;
+                font-size: 0.75rem;
+                margin-bottom: 0.1rem;
+            }
+            .lote-info-value {
+                font-weight: 500;
+                line-height: 1.2;
+            }
+        }
+        
+        @media (min-width: 577px) {
+            .table-view {
+                display: block;
+            }
+            .card-view {
+                display: none;
+            }
+        }
+    </style>
+
+    <!-- Importar el nuevo script para imprimir usando Blob -->
+    <script src="/public/assets/js/printLote.js"></script>
+</head>
+
+<body class="bg-transparent">
+
+    <div class="loading" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm py-2">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-5" href="#">
+                <i class="bi bi-box-seam me-1"></i>Inventario
+            </a>
+            <span class="navbar-text text-white" id="connectionStatus">
+                <span class="badge bg-success">Online</span>
+            </span>
+        </div>
+    </nav>
+
+    <!-- Panel de estadísticas -->
+    <div class="container py-2">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-boxes me-2"></i>Total Lotes</div>
+                        <div class="data-value" id="totalLotes">0</div>
+                        <div class="small text-muted" id="totalPesoLotes">0 Kg</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-currency-dollar me-2"></i>Valor Total</div>
+                        <div class="data-value text-primary" id="totalValorLotes">S/. 0.00</div>
+                        <div class="small text-muted" id="precioPromedio">S/. 0.00 / Kg</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-credit-card me-2"></i>Pagos Pendientes</div>
+                        <div class="data-value text-danger" id="totalPendientePago">S/. 0.00</div>
+                        <div class="small text-muted" id="porcentajePendiente">0% del total</div>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" id="progressPendiente" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-truck me-2"></i>Distribución quinua</div>
+                        <div style="max-height: 180px; position: relative; width: 100%;">
+                            <canvas id="distribucionQuinuaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Segunda fila de cards con análisis detallado -->
+    <div class="container py-1">
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-geo-alt me-2"></i>Procedencias Principales</div>
+                        <div id="top-procedencias" class="mt-2">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-8"></span>
+                                <span class="placeholder col-4"></span>
+                                <span class="placeholder col-6"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-building me-2"></i>Almacenes</div>
+                        <div id="distribucion-almacenes" class="mt-2">
+                            <div style="max-height: 280px; position: relative; width: 100%;">
+                                <canvas id="almacenesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="data-label"><i class="bi bi-people me-2"></i>Principales Productores</div>
+                        <div id="top-productores" class="mt-2">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-8"></span>
+                                <span class="placeholder col-4"></span>
+                                <span class="placeholder col-6"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-2">
+        <!-- Tabla de Lotes -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-table me-2"></i>Lotes Registrados
+                </h5>
+            </div>
+            <!-- Vista de tabla para pantallas grandes -->
+            <div class="card-body p-0 table-view">
+                <div class="table-responsive">
+                    <table id="lotesTable" class="table table-hover align-middle">
+                        <thead class="sticky-top bg-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Fecha</th>
+                                <th>Productor</th>
+                                <th class="d-none d-lg-table-cell">Procedencia</th>
+                                <th class="d-none d-lg-table-cell">Variedad</th>
+                                <th>Costo/Kg</th>
+                                <th>Costales</th>
+                                <th>Peso</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaLotes">
+                            <!-- Ejemplo de fila modificada en la tabla -->
+                            <tr>
+                                <td><strong><!-- ...codigo... --></strong></td>
+                                <td>
+                                    <!-- ...fecha... -->
+                                </td>
+                                <td>
+                                    <!-- ...productor... -->
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    <!-- ...procedencia... -->
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    <!-- ...variedad... -->
+                                </td>
+                                <td>S/.
+                                    <!-- ...costoKg... -->
+                                </td>
+                                <td>
+                                    <!-- ...total costales... -->
+                                </td>
+                                <td>
+                                    <!-- ...peso total... -->
+                                </td>
+                                <td>S/.
+                                    <!-- ...total... -->
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="LotesManager.editar('<!-- docId -->')" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="LotesManager.verDetalles('<!-- docId -->')" title="Detalles">
+                                            <i class="bi bi-info-circle"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info btn-sm" onclick="LotesManager.verHistorico('<!-- docId -->')" title="Histórico">
+                                            <i class="bi bi-clock-history"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="LotesManager.eliminar('<!-- docId -->')" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Los lotes se cargarán dinámicamente aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Controles para búsqueda y ordenación en vista de tarjetas (solo móvil) -->
+            <div class="d-md-none mb-3">
+                <div class="p-2 bg-white rounded shadow-sm">
+                    <h6 class="mb-2 text-center">Filtrar y Ordenar Lotes</h6>
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label for="busquedaMovil" class="form-label small mb-0">Buscar:</label>
+                            <input type="text" id="busquedaMovil" class="form-control" placeholder="Ingrese texto...">
+                        </div>
+                        <div class="col-6">
+                            <label for="ordenacionMovil" class="form-label small mb-0">Ordenar por:</label>
+                            <select id="ordenacionMovil" class="form-select">
+                                <option value="codigo">Código</option>
+                                <option value="fecha">Fecha</option>
+                                <option value="productor">Productor</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label for="direccionOrdenacion" class="form-label small mb-0">Dirección:</label>
+                            <select id="direccionOrdenacion" class="form-select">
+                                <option value="asc">Ascendente</option>
+                                <option value="desc">Descendente</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Vista de tarjetas para móviles -->
+            <div class="card-body card-view" id="cardViewLotes">
+                <!-- Ejemplo para la vista de tarjetas -->
+                <div class="lote-card">
+                    <div class="lote-card-header">
+                        <div class="lote-header-info">
+                            <strong class="h6 mb-0"><!-- ...codigo... --></strong>
+                            <small class="lote-variedad"><!-- ...variedad... --></small>
+                            <small class="lote-variedad"><!-- ...procedencia... --></small>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary btn-sm" onclick="LotesManager.editar('<!-- docId -->')" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="LotesManager.verDetalles('<!-- docId -->')" title="Detalles">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            <button class="btn btn-outline-info btn-sm" onclick="LotesManager.verHistorico('<!-- docId -->')" title="Histórico">
+                                <i class="bi bi-clock-history"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="LotesManager.eliminar('<!-- docId -->')" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalles del Lote -->
+    <div class="modal fade" id="modalDetalleLote" tabindex="1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-info-circle me-2"></i>Detalles del Lote
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Información General -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-card-list me-2"></i>Información General</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Código:</small>
+                                            <span id="detalleCodigo" class="fw-bold"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Nota de Compra:</small>
+                                            <span id="detalleNCompra"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Fecha:</small>
+                                            <span id="detalleFecha"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Ubicación:</small>
+                                            <span id="detalleUbicacion"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <small class="text-muted d-block">Productor:</small>
+                                            <span id="detalleProductor" class="fw-bold"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Procedencia:</small>
+                                            <span id="detalleProcedencia"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Responsable:</small>
+                                            <span id="detalleResponsable"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos del Producto -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-box-seam me-2"></i>Datos del Producto</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Variedad:</small>
+                                            <span id="detalleVariedad"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Humedad:</small>
+                                            <span id="detalleHumedad"></span>
+                                        </div>
+                                        <div class="col-4">
+                                            <small class="text-muted d-block">Costales:</small>
+                                            <span id="detalleTotalCostales" class="fw-bold"></span>
+                                        </div>
+                                        <div class="col-4">
+                                            <small class="text-muted d-block">Peso Bruto:</small>
+                                            <span id="detallePesoTotal"></span>
+                                        </div>
+                                        <div class="col-4">
+                                            <small class="text-muted d-block">Descuento:</small>
+                                            <span id="detalleDescuento"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <small class="text-muted d-block">Peso Neto:</small>
+                                            <span id="detallePesoNeto" class="fw-bold"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Financiera -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-currency-dollar me-2"></i>Información Financiera
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Costo/Kg:</small>
+                                            <span id="detalleCostoKg"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Condición:</small>
+                                            <span id="detalleCondicionIngreso"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Costo del Lote:</small>
+                                            <span id="detalleCostoLote" class="fw-bold"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Total Gastos:</small>
+                                            <span id="detalleGastosT"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Adelanto:</small>
+                                            <span id="detalleMontoAdelanto"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Pendiente:</small>
+                                            <span id="detalleMontoPendiente" class="fw-bold text-danger"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Costo Total:</small>
+                                            <span id="detalleCostoT" class="fw-bold"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Costo Real/Kg:</small>
+                                            <span id="detalleCostoRealkg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>Observaciones</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p id="detalleObservacion" class="mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detalle de Costales -->
+                        <div class="col-12" id="detalleCostalesContainer">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="bi bi-list-ol me-2"></i>Detalle de Costales</h6>
+                                    <span class="badge bg-primary" id="detalleTotalPesoCostales"></span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-light sticky-top">
+                                                <tr>
+                                                    <th width="80">#</th>
+                                                    <th>Peso (Kg)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detalleListaCostales"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detalle de Gastos -->
+                        <div class="col-12" id="detalleGastosContainer">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="bi bi-receipt me-2"></i>Detalle de Gastos</h6>
+                                    <span class="badge bg-primary" id="detalleTotalGastos"></span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Tipo</th>
+                                                    <th>Fecha</th>
+                                                    <th>Responsable</th>
+                                                    <th>Motivo</th>
+                                                    <th>Monto</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detalleListaGastos"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NUEVA SECCIÓN: Áreas de firma para proveedor y comprador -->
+                    <div class="row mt-4">
+                        <div class="col-md-6 text-center">
+                            <hr style="border-top: 1px solid #000;">
+                            <p>Firma del Proveedor</p>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <hr style="border-top: 1px solid #000;">
+                            <p>Firma del Comprador</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- Se reemplaza el botón de imprimir para llamar a printLoteBlob() -->
+                    <button type="button" class="btn btn-secondary" onclick="printLoteBlob()">Imprimir</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NUEVO MODAL: Documento formal para impresión (A4) -->
+    <div class="modal fade" id="modalImprimirLote" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Impresión de Detalles del Lote</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="printContent">
+                    <!-- Aquí se transcriben de forma ordenada los datos del lote -->
+                    <!-- Por ejemplo, se puede estructurar en secciones: Información General, Datos del Producto, Finanzas y áreas de firma -->
+                    <!-- Personaliza el contenido según tus requerimientos -->
+                    <div class="text-center mb-4">
+                        <h2>Detalle del Lote</h2>
+                        <hr>
+                    </div>
+                    <div id="printData">
+                        <!-- Se copiarán aquí los datos del lote -->
+                        <!-- ...existing data placeholders... -->
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-md-6 text-center">
+                            <hr style="border-top: 1px solid #000;">
+                            <p>Firma del Proveedor</p>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <hr style="border-top: 1px solid #000;">
+                            <p>Firma del Comprador</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bloque de script para transferir datos al modal de impresión -->
+    <script>
+        function openPrintModal() {
+            var printHtml = `
+            <div class="container" style="font-family: Arial, sans-serif; padding:20px;">
+              <h2 class="text-center mb-4">Detalles del Lote</h2>
+              <h3>Información General</h3>
+              <p><strong>Código:</strong> ${document.getElementById('detalleCodigo').textContent}</p>
+              <p><strong>Nota de Compra:</strong> ${document.getElementById('detalleNCompra').textContent}</p>
+              <p><strong>Fecha:</strong> ${document.getElementById('detalleFecha').textContent}</p>
+              <p><strong>Ubicación:</strong> ${document.getElementById('detalleUbicacion').textContent}</p>
+              <p><strong>Productor:</strong> ${document.getElementById('detalleProductor').textContent}</p>
+              <p><strong>Procedencia:</strong> ${document.getElementById('detalleProcedencia').textContent}</p>
+              <p><strong>Responsable:</strong> ${document.getElementById('detalleResponsable').textContent}</p>
+              <hr>
+              <h3>Datos del Producto</h3>
+              <p><strong>Variedad:</strong> ${document.getElementById('detalleVariedad').textContent}</p>
+              <p><strong>Humedad:</strong> ${document.getElementById('detalleHumedad').textContent}</p>
+              <p><strong>Costales:</strong> ${document.getElementById('detalleTotalCostales').textContent}</p>
+              <p><strong>Peso Bruto:</strong> ${document.getElementById('detallePesoTotal').textContent}</p>
+              <p><strong>Descuento:</strong> ${document.getElementById('detalleDescuento').textContent}</p>
+              <p><strong>Peso Neto:</strong> ${document.getElementById('detallePesoNeto').textContent}</p>
+              <hr>
+              <h3>Información Financiera</h3>
+              <p><strong>Costo/Kg:</strong> ${document.getElementById('detalleCostoKg').textContent}</p>
+              <p><strong>Condición:</strong> ${document.getElementById('detalleCondicionIngreso').textContent}</p>
+              <p><strong>Costo del Lote:</strong> ${document.getElementById('detalleCostoLote').textContent}</p>
+              <p><strong>Total Gastos:</strong> ${document.getElementById('detalleGastosT').textContent}</p>
+              <p><strong>Adelanto:</strong> ${document.getElementById('detalleMontoAdelanto').textContent}</p>
+              <p><strong>Pendiente:</strong> ${document.getElementById('detalleMontoPendiente').textContent}</p>
+              <p><strong>Costo Total:</strong> ${document.getElementById('detalleCostoT').textContent}</p>
+              <p><strong>Costo Real/Kg:</strong> ${document.getElementById('detalleCostoRealkg').textContent}</p>
+              <hr>
+              <h3>Observaciones</h3>
+              <p>${document.getElementById('detalleObservacion').textContent}</p>`;
+
+            // Incluir detalle de costales, si está visible
+            var detalleCostales = document.getElementById('detalleCostalesContainer');
+            if (detalleCostales && detalleCostales.style.display !== 'none') {
+                printHtml += `<hr><h3>Detalle de Costales</h3>` + detalleCostales.innerHTML;
+            }
+            // Incluir detalle de gastos, si está visible
+            var detalleGastos = document.getElementById('detalleGastosContainer');
+            if (detalleGastos && detalleGastos.style.display !== 'none') {
+                printHtml += `<hr><h3>Detalle de Gastos</h3>` + detalleGastos.innerHTML;
+            }
+            // Agregar área de firmas
+            printHtml += `<hr>
+              <div class="row mt-5">
+                 <div class="col-md-6 text-center">
+                     <hr style="border-top: 1px solid #000;">
+                     <p>Firma del Proveedor</p>
+                 </div>
+                 <div class="col-md-6 text-center">
+                     <hr style="border-top: 1px solid #000;">
+                     <p>Firma del Comprador</p>
+                 </div>
+              </div>
+            </div>`;
+
+            document.getElementById('printData').innerHTML = printHtml;
+            var printModal = new bootstrap.Modal(document.getElementById('modalImprimirLote'));
+            printModal.show();
+        }
+    </script>
+
+    <!-- Modal de Nuevo Lote -->
+    <div class="modal fade" id="modalNuevoLote" tabindex="2">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-box-seam me-2"></i>Nuevo Lote
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-2">
+                    <form id="loteForm">
+                        <!-- Sección Datos Básicos -->
+                        <div class="mb-2">
+                            <h6>Datos Básicos</h6>
+                            <div class="row g-2">
+                                <div class="col-md-1">
+                                    <label class="form-label">Código</label>
+                                    <input type="text" class="form-control" id="codigo" disabled>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label">NC</label>
+                                    <input type="text" class="form-control" id="NCompra" data-bs-toggle="tooltip" data-bs-placement="top" title="Nota de Compra física">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Fecha</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                        <input type="date" class="form-control" id="fecha" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Ubicación</label>
+                                    <select class="form-select" id="ubicacionAlmacen">
+                                        <option value="">Seleccione...</option>
+                                        <option value="agricultor">Almacén del Agricultor</option>
+                                        <option value="almacen1">Almacén 1</option>
+                                        <option value="almacen2">Almacén 2</option>
+                                        <option value="almacen3">Almacén 3</option>
+                                    </select>
+                                </div>
+
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Procedencia</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                        <input type="text" class="form-control" id="procedencia" list="procedencia-list">
+                                        <datalist id="procedencia-list">
+                                            <option value="Acocro">
+                                            <option value="Acosvinchos">
+                                            <option value="Andahuaylas">
+                                            <option value="Andaraccay">
+                                            <option value="Antinayoocc">
+                                            <option value="Antolinayocc">
+                                            <option value="Ayacucho">
+                                            <option value="Ccaccañan">
+                                            <option value="Ccarhuaqchoqe">
+                                            <option value="Ccechcca">
+                                            <option value="Ccoisa">
+                                            <option value="Ccollcca">
+                                            <option value="Chaupiorcco">
+                                            <option value="Chiara">
+                                            <option value="Chito">
+                                            <option value="Chito Vilcas">
+                                            <option value="Chontaca">
+                                            <option value="Condoray">
+                                            <option value="Cuchicancha">
+                                            <option value="Gomez">
+                                            <option value="Huamanccocha">
+                                            <option value="Huaychao">
+                                            <option value="Iguain">
+                                            <option value="Julcamarca">
+                                            <option value="Julca-Tambo-Ticllas">
+                                            <option value="Llantapacha">
+                                            <option value="Manllasacc">
+                                            <option value="Matara">
+                                            <option value="Mosuqallpa">
+                                            <option value="Motuy Alta">
+                                            <option value="Muña">
+                                            <option value="Musoqallpa">
+                                            <option value="Musuqapa">
+                                            <option value="Ocros">
+                                            <option value="Ocros-Matara">
+                                            <option value="Orccohuasi">
+                                            <option value="Pallccayacu">
+                                            <option value="Pampacangallo">
+                                            <option value="Pampamarca">
+                                            <option value="Pantin-Incaraccay">
+                                            <option value="Pantipampa">
+                                            <option value="Parccahuanca">
+                                            <option value="Pinao">
+                                            <option value="Pomapuquio">
+                                            <option value="Pucuhuillca">
+                                            <option value="Quicato">
+                                            <option value="Quinua">
+                                            <option value="Quinua-Acocro">
+                                            <option value="Raymina">
+                                            <option value="Seccelambras">
+                                            <option value="Tallana">
+                                            <option value="Tambillo">
+                                            <option value="Tambo">
+                                            <option value="Tambobamba">
+                                            <option value="Tantana">
+                                            <option value="Tarwiyoq">
+                                            <option value="Tayacaja">
+                                            <option value="Ticllas">
+                                            <option value="Tiente">
+                                            <option value="Tinte">
+                                            <option value="Uchuypampa">
+                                            <option value="Vilcashuaman">
+                                            <option value="Vinchos">
+                                            <option value="Yanamilla">
+                                        </datalist>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Nombre del Productor</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                        <input type="text" class="form-control" id="productor" required list="productorList">
+                                    </div>
+                                    <datalist id="productorList">
+                                        <option value="Abelardo Casas">
+                                        <option value="Adela Cuba Flores">
+                                        <option value="Adrian Atauje Anaya">
+                                        <option value="Alcides Casas Reyes">
+                                        <option value="Alcides Reyes">
+                                        <option value="Alejandro Flores Quispe">
+                                        <option value="Alicia Sulca Cahuana">
+                                        <option value="Andres Palomino Huamani">
+                                        <option value="Arturo Alberdi">
+                                        <option value="Ayde Munguia Cucho">
+                                        <option value="Cirilo Reyes Lujan">
+                                        <option value="Crisostomo Tineo Pizarro">
+                                        <option value="Deivit Tupia Dipaz">
+                                        <option value="Diego Huaytalla Canchari">
+                                        <option value="Donato Zamora">
+                                        <option value="Dora Santiago Llactahuaman">
+                                        <option value="Efrain Guevara">
+                                        <option value="Ernesto Paredes">
+                                        <option value="Ezequiel Quispe Simon">
+                                        <option value="Felipe De La Cruz Gomez">
+                                        <option value="Felix Delfin Nalvarte Casas">
+                                        <option value="Fortunato Gomez Dipaz (Ruben)">
+                                        <option value="Fredy">
+                                        <option value="Gabriel Alberdi">
+                                        <option value="Gabriel Callañaupa Santiago">
+                                        <option value="Gabriel Flores Michca">
+                                        <option value="Gabriel Najarro">
+                                        <option value="Jeremias Quispe Ramirez (Satu)">
+                                        <option value="Jeremias Tayacaja">
+                                        <option value="Jhon Guevara Cuba">
+                                        <option value="Jhon Quispe Llampasi">
+                                        <option value="Jhony Lizana Mendoza">
+                                        <option value="Jose Gabriel Alberdi">
+                                        <option value="Jose Luis Huamancusi">
+                                        <option value="Jose Nieto Huaman">
+                                        <option value="Juan Ramos Elme">
+                                        <option value="Kely Albedi">
+                                        <option value="Leonor Fernandez Alberde">
+                                        <option value="Lidia Rua Muñoz">
+                                        <option value="Luis Amiquero Tineo">
+                                        <option value="Marcial Carrasco">
+                                        <option value="Maria Elizabeth Huaman Mejia (Nelson M)">
+                                        <option value="Maribel Alacute Castillo">
+                                        <option value="Marilu Huaman Quispe">
+                                        <option value="Martin Albitez">
+                                        <option value="Maximo Torres Godoy (Jhoel Najarro)">
+                                        <option value="Nelson Mejia Flores">
+                                        <option value="Nike Anaya (Amiquero)">
+                                        <option value="Noma Ccenhua Michca">
+                                        <option value="Norma Ccenhua Michca">
+                                        <option value="Paulina Aponte Quispe">
+                                        <option value="Prudencia Muñoz De Casas">
+                                        <option value="Roly Ramirez Sierra">
+                                        <option value="Ruben Quispe Tineo">
+                                        <option value="Ruben Raymundez Quispe">
+                                        <option value="Ruth Garamendi Hinostroza">
+                                        <option value="Saturnino Flores Michca">
+                                        <option value="Teofilo Bedrillana Janampa (Ruben)">
+                                        <option value="Teofilo Tineo Anaya">
+                                        <option value="Vanesa Quispe Cucho">
+                                        <option value="Willian Coronel Carrillo (Jhony Lizana)">
+                                        <option value="Yoel Ramirez">
+                                        <option value="Yovana Berrocal Flores">
+                                        <option value="Yuri Chontaca">
+                                    </datalist>
+                                </div>
+
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Variedad</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                        <select class="form-select" id="variedad" required>
+                                            <option value="">Seleccione...</option>
+                                            <option value="blanca">Blanca</option>
+                                            <option value="roja">Roja</option>
+                                            <option value="negra">Negra</option>
+                                            <option value="Amarilla">Amarilla</option>
+                                            <option value="otra">Otra</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">% de Humedad</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">%</span>
+                                        <input type="number" step="0.01" class="form-control" id="humedad">
+                                    </div>
+                                </div>
+
+                                <!--Totales Peso-->
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Total Costales</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="totalCostales" readonly>
+                                        <span class="input-group-text"><i class="bi bi-info-circle-fill"
+                                                title="Peso simple o detallado"></i></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Peso Bruto (Kg)</label>
+                                    <div class="input-group">
+                                        <input type="text" step="0.01" class="form-control" id="pesoTotal" readonly>
+                                        <span class="input-group-text"><i class="bi bi-info-circle-fill"
+                                                title="Peso simple o detallado"></i></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Descuento (Kg)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">-</span>
+                                        <input type="number" step="0.01" class="form-control" id="descuento">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Peso Neto (Kg)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                        <input type="number" step="0.01" class="form-control bg-light" id="pesoNeto" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Costo pactado</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i>S/.</i></span>
+                                        <input type="text" step="0.01" class="form-control" id="costoKg" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Condición de Ingreso</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-info-circle"></i></span>
+                                        <select class="form-select" id="condicionIngreso" required>
+                                            <option value="">Seleccione...</option>
+                                            <option value="pagado">Pagado</option>
+                                            <option value="adelanto">Con adelanto</option>
+                                            <option selected value="credito">A crédito</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Monto Adelanto</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i>S/.</i></span>
+                                        <input type="number" step="0.01" class="form-control" id="montoAdelanto">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Pendiente</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i>S/.</i></span>
+                                        <input type="number" step="0.01" class="form-control" id="montoPendiente" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Responsable de Recepción</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-person-check"></i></span>
+                                        <input type="text" class="form-control" id="responsable">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <!-- Acordeón para secciones: Peso detallado, Gastos y Otros Datos -->
+                        <div class="accordion" id="accordionNuevoLote">
+                            <!-- Peso detallado -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingPeso">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePeso" aria-expanded="true" aria-controls="collapsePeso">
+                                        Peso detallado
+                                    </button>
+                                </h2>
+                                <div id="collapsePeso" class="accordion-collapse collapse" aria-labelledby="headingPeso" data-bs-parent="#accordionNuevoLote">
+                                    <div class="accordion-body">
+                                        <!-- Se muestra la lista de costales detallados, sin opción para alternar -->
+                                        <div class="mb-3">
+                                            <div class="row g-2">
+                                                <div class="col-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i
+                                                                class="bi bi-weight"></i></span>
+                                                        <input type="number" step="0.01" class="form-control form-control-lg" id="pesoCostal" inputmode="decimal" placeholder="Peso en Kg">
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <button type="button" class="btn btn-success btn-lg w-100 h-100" id="btnAgregarCostal">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <!-- ...existing table headers y estructura... -->
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="3">Lista de Costales</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tablaCostales"></tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th colspan="2">Total General:</th>
+                                                        <th id="totalPesoCostales">0.00 Kg</th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Gastos -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingGastos">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGastos" aria-expanded="false" aria-controls="collapseGastos">
+                                        Gastos
+                                    </button>
+                                </h2>
+                                <div id="collapseGastos" class="accordion-collapse collapse" aria-labelledby="headingGastos" data-bs-parent="#accordionNuevoLote">
+                                    <div class="accordion-body">
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-2">
+                                                <label class="form-label">Tipo de Gasto</label>
+                                                <select class="form-select" id="gastoTipo">
+                                                    <option value="estivaje">Estivaje</option>
+                                                    <option value="flete">Flete</option>
+                                                    <option value="otro">Otro</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">Fecha</label>
+                                                <input type="date" class="form-control" id="gastoFecha">
+                                            </div>
+                                            <div la="col-md-3">
+                                                <label class="form-label">Proveedor</label>
+                                                <input type="text" class="form-control" id="gastoResponsable">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Motivo</label>
+                                                <input type="text" class="form-control" id="gastoMotivo">
+                                            </div>
+                                            <div class="col-md-1">
+                                                <label class="form-label">Monto (S/.)</label>
+                                                <input type="text" step="0.01" class="form-control" id="gastoMonto">
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button type="button" class="btn btn-success" id="btnAgregarGasto" title="Agregar Gasto">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-striped table-bordered table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tipo</th>
+                                                        <th>Fecha</th>
+                                                        <th>Líder/Chofer</th>
+                                                        <th>Motivo</th>
+                                                        <th>Monto</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tablaGasto"></tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th colspan="3">Total Gastos:</th>
+                                                        <th id="totalGastosCell"></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <br>
+
+                            <div class="col-md-12">
+                                <label class="form-label">Observación</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-info-circle"></i></span>
+                                    <input type="text" class="form-control" id="observacion">
+                                </div>
+                            </div>
+
+
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-3">
+                                    <label class="form-label">Costo del Lote</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i>S/.</i></span>
+                                        <input type="text" step="0.01" class="form-control" id="costoLote">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Total Gastos</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i>S/.</i></span>
+                                        <input type="text" step="0.01" class="form-control" id="GastosT" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Costo Total</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i>S/.</i></span>
+                                        <input type="text" step="0.01" class="form-control" id="CostoT" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Costo Real por Kg</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i>S/.</i></span>
+                                        <input type="text" step="0.01" class="form-control" id="CostoRealkg" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="text-end mt-2">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="bi bi-x-lg me-2"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary ms-2">
+                                <i class="bi bi-save me-2"></i>Guardar Lote
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Histórico -->
+    <div class="modal fade" id="modalHistorico" tabindex="3">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-clock-history me-2"></i>Histórico del Lote
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Información del Lote</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Código:</strong> <span id="historicoLoteCodigo"></span></p>
+                                <p><strong>Productor:</strong> <span id="historicoLoteProductor"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Fecha:</strong> <span id="historicoLoteFecha"></span></p>
+                                <p><strong>Procedencia:</strong> <span id="historicoLoteProcedencia"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="border-bottom pb-2">Registros de Peso</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Costales</th>
+                                    <th>Peso Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaHistorico">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalles de Costales -->
+    <div class="modal fade" id="modalDetallesCostales" tabindex="4">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h6 class="modal-title">Detalle de Costales</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Peso (Kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaDetallesCostales">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Total:</th>
+                                <th id="totalDetallesCostales"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/numeral@2.0.6/numeral.min.js"></script>
+    <script src="/public/assets/js/viewsjs/cargios.js"></script>
+</body>
+
+</html>
