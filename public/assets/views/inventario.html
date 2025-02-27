@@ -177,20 +177,20 @@
 
                     <div class="dropdown d-inline-block">
                         <button type="button" class="btn header-item bg-light-subtle border-start border-end" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img class="rounded-circle header-profile-user" src="/public/assets/images/users/avatar-1.jpg"
-                                alt="Header Avatar">
-                            <span class="d-none d-xl-inline-block ms-1 fw-medium">Usuario</span>
+                            <img class="rounded-circle header-profile-user" src="/public/assets/images/users/avatar-1.jpg" alt="Header Avatar">
+                            <span class="d-none d-xl-inline-block ms-1 fw-medium" id="user-email"></span>
                             <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <!-- item-->
-                            <a class="dropdown-item" href="apps-contacts-profile.html"><i
-                                    class="mdi mdi mdi-face-man font-size-16 align-middle me-1"></i> Profile</a>
+                            <a class="dropdown-item" href="#"><i
+                                    class="mdi mdi mdi-face-man font-size-16 align-middle me-1"></i> Perfil</a>
                             <a class="dropdown-item" href="auth-lock-screen.html"><i
-                                    class="mdi mdi-lock font-size-16 align-middle me-1"></i> Lock Screen</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/public/assets/views/auth-login.html"><i
-                                    class="mdi mdi-logout font-size-16 align-middle me-1"></i> Logout</a>
+                                    class="mdi mdi-lock text-muted font-size-16 align-middle me-1"></i> <span
+                                    class="align-middle">Bloquear pantalla</span></a>
+                            <a class="dropdown-item" href="#" onclick="handleLogout()"><i
+                                    class="mdi mdi-logout text-muted font-size-16 align-middle me-1"></i> <span
+                                    class="align-middle">Cerrar sesión</span></a>
                         </div>
                     </div>
 
@@ -452,6 +452,14 @@
             });
         });
     </script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- Auth JS -->
+    <script src="/public/assets/js/auth.js"></script>
 
     <script src="/public/assets/js/app.js"></script>
 
