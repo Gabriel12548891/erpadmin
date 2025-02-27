@@ -29,9 +29,8 @@ try {
 
 // Rutas públicas que no requieren autenticación
 const publicPaths = [
-    '/public/assets/views/auth-login.html',
-    '/assets/views/auth-login.html',
-    'auth-login.html'
+    'auth-login.html',
+    'assets/views/auth-login.html'
 ];
 
 // Función para verificar si una ruta es pública
@@ -64,7 +63,7 @@ async function handleLogin(event) {
         console.log('Login exitoso:', userCredential);
 
         if (userCredential.user) {
-            window.location.href = '/public/index.html';
+            window.location.href = '../../index.html';
         }
     } catch (error) {
         console.error('Error completo durante el login:', error);
@@ -107,9 +106,9 @@ function checkAuth() {
         console.log('Estado de autenticación:', user ? 'Usuario autenticado' : 'No autenticado');
 
         if (!user && !isPublicPath(currentPath)) {
-            window.location.href = '/public/assets/views/auth-login.html';
+            window.location.href = 'assets/views/auth-login.html';
         } else if (user && isPublicPath(currentPath)) {
-            window.location.href = '/public/index.html';
+            window.location.href = '../../index.html';
         }
 
         // Actualizar la información del usuario en el header si existe el elemento
@@ -129,7 +128,7 @@ async function handleLogout() {
         }
 
         await auth.signOut();
-        window.location.href = '/public/assets/views/auth-login.html';
+        window.location.href = 'assets/views/auth-login.html';
     } catch (error) {
         console.error('Error al cerrar sesión:', error);
         alert('Error al cerrar sesión: ' + error.message);
@@ -138,6 +137,7 @@ async function handleLogout() {
 
 // Hacer global la función handleLogout
 window.handleLogout = handleLogout;
+window.handleLogin = handleLogin;
 
 // Verificar autenticación al cargar cualquier página
 document.addEventListener('DOMContentLoaded', () => {

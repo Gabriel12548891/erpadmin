@@ -114,180 +114,38 @@
         }
     </style>
     <title>Sistema de Carguíos de Quinua</title>
+
+    <!-- CSS Libraries from CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="manifest" href="/public/assets/manifest/carguiosmanifest.json">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+
+    <!-- Local CSS -->
+    <link rel="manifest" href="../manifest/carguiosmanifest.json">
+
+    <!-- JAVASCRIPT Libraries from CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .loading {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .floating-button {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 30px;
-            font-size: 24px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            transition: transform 0.2s;
-        }
-        
-        .floating-button:hover {
-            transform: scale(1.1);
-        }
-        
-        .card {
-            border: none;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-        }
-        
-        .card-header {
-            background: none;
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-        
-        .table th {
-            font-weight: 600;
-            color: #555;
-        }
-        
-        .badge {
-            padding: 0.5em 1em;
-        }
-        
-        .nav-tabs {
-            border: none;
-            margin-bottom: 1rem;
-        }
-        
-        .nav-tabs .nav-link {
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            margin-right: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .nav-tabs .nav-link.active {
-            background-color: #0d6efd;
-            color: white;
-        }
-        
-        @media (max-width: 768px) {
-            .table {
-                font-size: 0.875rem;
-            }
-            .table td,
-            .table th {
-                padding: 0.5rem;
-            }
-            .btn-group-sm>.btn {
-                padding: 0.25rem 0.4rem;
-                font-size: 0.75rem;
-            }
-            .bi {
-                font-size: 0.875rem;
-            }
-        }
-        
-        .sticky-top {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-        
-        @media (max-width: 576px) {
-            .table-view {
-                display: none;
-            }
-            .card-view {
-                display: block;
-            }
-            .lote-card {
-                border: 1px solid rgba(0, 0, 0, .125);
-                border-radius: 0.5rem;
-                padding: 1rem;
-                margin-bottom: 1rem;
-                background: white;
-            }
-            .lote-card-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                margin-bottom: 0.75rem;
-                gap: 0.5rem;
-            }
-            .lote-header-info {
-                display: flex;
-                flex-direction: column;
-            }
-            .lote-variedad {
-                font-size: 0.75rem;
-                color: #666;
-            }
-            .lote-info {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.75rem;
-                margin-bottom: 0.5rem;
-                font-size: 0.875rem;
-            }
-            .lote-info-item {
-                display: flex;
-                flex-direction: column;
-            }
-            .lote-info-label {
-                color: #666;
-                font-size: 0.75rem;
-                margin-bottom: 0.1rem;
-            }
-            .lote-info-value {
-                font-weight: 500;
-                line-height: 1.2;
-            }
-        }
-        
-        @media (min-width: 577px) {
-            .table-view {
-                display: block;
-            }
-            .card-view {
-                display: none;
-            }
-        }
-    </style>
-
-    <!-- Importar el nuevo script para imprimir usando Blob -->
-    <script src="/public/assets/js/printLote.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/numeral@2.0.6/numeral.min.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
+    <!-- Local JS -->
+    <script src="../js/printLote.js"></script>
+    <script src="../js/auth-check.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/viewsjs/carguios.js"></script>
+
     <!-- Auth Check -->
-    <script src="/public/assets/js/auth-check.js"></script>
+    <script src="/assets/js/auth-check.js"></script>
 
     <!-- Auth JS -->
-    <script src="/public/assets/js/auth.js"></script>
+    <script src="/assets/js/auth.js"></script>
 </head>
 
 <body class="bg-transparent">
@@ -1406,8 +1264,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/numeral@2.0.6/numeral.min.js"></script>
-    <script src="/public/assets/js/viewsjs/cargios.js"></script>
+    <script src="/assets/js/viewsjs/cargios.js"></script>
 </body>
 
 </html>
