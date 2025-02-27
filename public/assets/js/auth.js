@@ -29,14 +29,24 @@ try {
 
 // Rutas públicas que no requieren autenticación
 const publicPaths = [
-    '/public/assets/views/auth-login.html',
-    '/assets/views/auth-login.html',
-    'auth-login.html'
+    'auth-login.html',
+    'assets/auth-login.html'
 ];
 
 // Función para verificar si una ruta es pública
 function isPublicPath(path) {
     return publicPaths.some(publicPath => path.includes(publicPath));
+}
+
+// Función para obtener la ruta base
+function getBasePath() {
+    const path = window.location.pathname;
+    // Si estamos en la carpeta assets o más profundo
+    if (path.includes('/assets/')) {
+        const levels = path.split('/').length - 2; // -2 por el string vacío inicial y el archivo actual
+        return '../'.repeat(levels - 1);
+    }
+    return './';
 }
 
 // Función para manejar el inicio de sesión
@@ -64,7 +74,8 @@ async function handleLogin(event) {
         console.log('Login exitoso:', userCredential);
 
         if (userCredential.user) {
-            window.location.href = '/public/index.html';
+            const basePath = getBasePath();
+            window.location.href = basePath + 'index.html';
         }
     } catch (error) {
         console.error('Error completo durante el login:', error);
@@ -105,11 +116,12 @@ function checkAuth() {
     auth.onAuthStateChanged((user) => {
         const currentPath = window.location.pathname;
         console.log('Estado de autenticación:', user ? 'Usuario autenticado' : 'No autenticado');
+        const basePath = getBasePath();
 
         if (!user && !isPublicPath(currentPath)) {
-            window.location.href = '/public/assets/views/auth-login.html';
+            window.location.href = basePath + 'assets/auth-login.html';
         } else if (user && isPublicPath(currentPath)) {
-            window.location.href = '/public/index.html';
+            window.location.href = basePath + 'index.html';
         }
 
         // Actualizar la información del usuario en el header si existe el elemento
@@ -129,7 +141,8 @@ async function handleLogout() {
         }
 
         await auth.signOut();
-        window.location.href = '/public/assets/views/auth-login.html';
+        const basePath = getBasePath();
+        window.location.href = basePath + 'assets/auth-login.html';
     } catch (error) {
         console.error('Error al cerrar sesión:', error);
         alert('Error al cerrar sesión: ' + error.message);
