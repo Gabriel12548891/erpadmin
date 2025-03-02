@@ -15,16 +15,27 @@ if (!window.firebaseConfig.apiKey || !window.firebaseConfig.authDomain || !windo
     console.error('Faltan credenciales de Firebase necesarias');
 }
 
-// Inicializar Firebase (solo si no está ya inicializado)
+// Verificar si Firebase ya está disponible globalmente
 let firebaseApp;
 try {
-    if (!firebase.apps.length) {
-        firebaseApp = firebase.initializeApp(window.firebaseConfig);
+    // Primero verificamos si firebase ya está disponible (posiblemente del padre)
+    if (typeof firebase !== 'undefined') {
+        console.log('Firebase ya está disponible globalmente');
+
+        // Verificar si ya hay una app inicializada
+        if (firebase.apps && firebase.apps.length > 0) {
+            console.log('Usando instancia de Firebase existente en auth.js');
+            firebaseApp = firebase.app();
+        } else {
+            // Si firebase está disponible pero no hay apps inicializadas
+            console.log('Inicializando Firebase en auth.js con la instancia global');
+            firebaseApp = firebase.initializeApp(window.firebaseConfig);
+        }
     } else {
-        firebaseApp = firebase.app();
+        console.error('Firebase no está disponible. Asegúrate de incluir los scripts de Firebase antes de auth.js');
     }
 } catch (error) {
-    console.error('Error al inicializar Firebase:', error);
+    console.error('Error al acceder a Firebase:', error);
 }
 
 // Rutas públicas que no requieren autenticación
@@ -115,7 +126,19 @@ function checkAuth() {
         // Actualizar la información del usuario en el header si existe el elemento
         const userEmailElement = document.getElementById('user-email');
         if (userEmailElement && user) {
-            userEmailElement.textContent = user.email;
+            console.log('Actualizando elemento user-email con:', user.email);
+            userEmailElement.textContent = user.email || 'Usuario';
+
+            // También actualizar cualquier otro elemento que muestre información del usuario
+            const userDisplayElements = document.querySelectorAll('[data-user-info="email"]');
+            userDisplayElements.forEach(element => {
+                element.textContent = user.email || 'Usuario';
+            });
+        } else if (userEmailElement) {
+            console.log('Elemento user-email encontrado pero no hay usuario autenticado');
+            userEmailElement.textContent = 'Usuario';
+        } else {
+            console.log('Elemento user-email no encontrado en el DOM');
         }
     });
 }

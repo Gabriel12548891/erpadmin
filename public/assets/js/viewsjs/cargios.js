@@ -1,15 +1,29 @@
 // ============= CONFIGURACIÓN FIREBASE =============
-const firebaseConfig = {
-    apiKey: "AIzaSyBy_V4hsuhMrbq7NBTMG289ievV-nhzf68",
-    authDomain: "abigranos.firebaseapp.com",
-    projectId: "abigranos",
-    storageBucket: "abigranos.firebasestorage.app",
-    messagingSenderId: "405475347978",
-    appId: "1:405475347978:web:a0c9bb724903cca76b99f3"
-};
+// Verificar si Firebase ya está inicializado
+let db;
+try {
+    // Verificar si firebase ya está disponible y tiene apps inicializadas
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+        console.log('Usando instancia de Firebase existente en cargios.js');
+        db = firebase.firestore();
+    } else {
+        // Solo inicializar si no está ya inicializado
+        console.log('Inicializando Firebase en cargios.js');
+        const firebaseConfig = {
+            apiKey: "AIzaSyBy_V4hsuhMrbq7NBTMG289ievV-nhzf68",
+            authDomain: "abigranos.firebaseapp.com",
+            projectId: "abigranos",
+            storageBucket: "abigranos.firebasestorage.app",
+            messagingSenderId: "405475347978",
+            appId: "1:405475347978:web:a0c9bb724903cca76b99f3"
+        };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    }
+} catch (error) {
+    console.error('Error al configurar Firebase en cargios.js:', error);
+}
 
 // ============= VARIABLES GLOBALES =============
 const STATE = {

@@ -2,17 +2,31 @@
 console.log('Iniciando comercial.js');
 
 // ============= CONFIGURACIÓN FIREBASE =============
-const firebaseConfig = {
-    apiKey: "AIzaSyBy_V4hsuhMrbq7NBTMG289ievV-nhzf68",
-    authDomain: "abigranos.firebaseapp.com",
-    projectId: "abigranos",
-    storageBucket: "abigranos.firebasestorage.app",
-    messagingSenderId: "405475347978",
-    appId: "1:405475347978:web:a0c9bb724903cca76b99f3"
-};
+// Verificar si Firebase ya está inicializado
+let db;
+try {
+    // Verificar si firebase ya está disponible y tiene apps inicializadas
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+        console.log('Usando instancia de Firebase existente en pagos.js');
+        db = firebase.firestore();
+    } else {
+        // Solo inicializar si no está ya inicializado
+        console.log('Inicializando Firebase en pagos.js');
+        const firebaseConfig = {
+            apiKey: "AIzaSyBy_V4hsuhMrbq7NBTMG289ievV-nhzf68",
+            authDomain: "abigranos.firebaseapp.com",
+            projectId: "abigranos",
+            storageBucket: "abigranos.firebasestorage.app",
+            messagingSenderId: "405475347978",
+            appId: "1:405475347978:web:a0c9bb724903cca76b99f3"
+        };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    }
+} catch (error) {
+    console.error('Error al configurar Firebase en pagos.js:', error);
+}
 
 // ============= VARIABLES GLOBALES =============
 const STATE = {
@@ -126,7 +140,7 @@ const LotesComercialManager = {
     // Añadir variable global para rastrear instancias de DataTable
     dataTableInstances: {},
 
-    cargar: function () {
+    cargar: function() {
         DOM.loadingSpinner.style.display = 'flex';
         try {
             console.log('Iniciando carga de lotes comerciales...');
@@ -135,10 +149,10 @@ const LotesComercialManager = {
             db.collection('lotes')
                 .where("estadodoc", "==", "activo")
                 .get()
-                .then(function (snapshot) {
+                .then(function(snapshot) {
                     console.log('Resultado de la consulta:', snapshot.size, 'documentos encontrados');
 
-                    STATE.lotes = snapshot.docs.map(function (doc) {
+                    STATE.lotes = snapshot.docs.map(function(doc) {
                         return {
                             id: doc.id,
                             ...doc.data()
@@ -146,7 +160,7 @@ const LotesComercialManager = {
                     });
 
                     // Procesar lotes para vista comercial
-                    STATE.lotesComerciales = STATE.lotes.map(function (lote) {
+                    STATE.lotesComerciales = STATE.lotes.map(function(lote) {
                         const estadoPago = UTILS.calcularEstadoPago(lote);
                         return {
                             ...lote,
@@ -164,11 +178,11 @@ const LotesComercialManager = {
                     // Procesar datos para la vista de pagos a productores
                     LotesComercialManager.procesarProductores();
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.error('Error al cargar lotes:', error);
                     showBootstrapAlert('Error al cargar los datos de lotes', 'danger');
                 })
-                .finally(function () {
+                .finally(function() {
                     DOM.loadingSpinner.style.display = 'none';
                 });
         } catch (error) {
@@ -178,28 +192,28 @@ const LotesComercialManager = {
         }
     },
 
-    actualizarEstadisticas: function () {
+    actualizarEstadisticas: function() {
         // Calcular totales
         const totalLotes = STATE.lotesComerciales.length;
-        const totalPeso = STATE.lotesComerciales.reduce(function (sum, lote) {
+        const totalPeso = STATE.lotesComerciales.reduce(function(sum, lote) {
             return sum + (lote.pesoNeto || 0);
         }, 0);
-        const totalMonto = STATE.lotesComerciales.reduce(function (sum, lote) {
+        const totalMonto = STATE.lotesComerciales.reduce(function(sum, lote) {
             return sum + (lote.costoLote || 0);
         }, 0);
-        const totalPagado = STATE.lotesComerciales.reduce(function (sum, lote) {
+        const totalPagado = STATE.lotesComerciales.reduce(function(sum, lote) {
             return sum + lote.pagado;
         }, 0);
-        const totalPendiente = STATE.lotesComerciales.reduce(function (sum, lote) {
+        const totalPendiente = STATE.lotesComerciales.reduce(function(sum, lote) {
             return sum + lote.pendiente;
         }, 0);
 
         // Calcular total de servicios pendientes
         const totalServiciosPendientes = STATE.servicios
-            .filter(function (servicio) {
+            .filter(function(servicio) {
                 return !servicio.pagado;
             })
-            .reduce(function (sum, servicio) {
+            .reduce(function(sum, servicio) {
                 return sum + servicio.monto;
             }, 0);
 
@@ -219,7 +233,7 @@ const LotesComercialManager = {
         document.getElementById('serviciosPendientes').textContent = 'S/. ' + UTILS.formatNumber(totalServiciosPendientes);
 
         // Calcular porcentaje de servicios pendientes respecto al total de gastos
-        const totalGastos = STATE.lotesComerciales.reduce(function (sum, lote) {
+        const totalGastos = STATE.lotesComerciales.reduce(function(sum, lote) {
             return sum + (lote.GastosT || 0);
         }, 0);
         const porcentajeServicios = totalGastos > 0 ? (totalServiciosPendientes / totalGastos) * 100 : 0;
@@ -227,7 +241,7 @@ const LotesComercialManager = {
         document.getElementById('progressServicios').style.width = porcentajeServicios + '%';
     },
 
-    filtrar: function (filtro) {
+    filtrar: function(filtro) {
         console.log('Aplicando filtro:', filtro);
         STATE.filtroLotes = filtro;
 
@@ -238,17 +252,17 @@ const LotesComercialManager = {
         var lotesFiltrados = [];
         switch (filtro) {
             case 'pagados':
-                lotesFiltrados = STATE.lotesComerciales.filter(function (lote) {
+                lotesFiltrados = STATE.lotesComerciales.filter(function(lote) {
                     return lote.estado === 'pagado';
                 });
                 break;
             case 'parciales':
-                lotesFiltrados = STATE.lotesComerciales.filter(function (lote) {
+                lotesFiltrados = STATE.lotesComerciales.filter(function(lote) {
                     return lote.estado === 'parcial';
                 });
                 break;
             case 'pendientes':
-                lotesFiltrados = STATE.lotesComerciales.filter(function (lote) {
+                lotesFiltrados = STATE.lotesComerciales.filter(function(lote) {
                     return lote.estado === 'pendiente';
                 });
                 break;
@@ -270,9 +284,9 @@ const LotesComercialManager = {
         return false; // Evitar comportamiento por defecto
     },
 
-    renderLotes: function (lotes) {
+    renderLotes: function(lotes) {
         console.log('Renderizando lotes:', lotes.length, 'lotes a mostrar');
-        
+
         // Construir el HTML de la tabla
         let theadHTML = `
             <tr>
@@ -343,12 +357,12 @@ const LotesComercialManager = {
             // Inicializar DataTable con opciones (incluyendo idioma)
             $('#lotesComercialTable').DataTable({
                 language: { url: 'https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json' },
-                order: []  // Permite ordenarlo mediante DataTables
+                order: [] // Permite ordenarlo mediante DataTables
             });
         }
     },
 
-    procesarProductores: function () {
+    procesarProductores: function() {
         // Agrupar lotes por productor
         STATE.productores = {};
 
@@ -397,7 +411,7 @@ const LotesComercialManager = {
         }
 
         // Inicializar DataTable
-        setTimeout(function () {
+        setTimeout(function() {
             if ($.fn.dataTable.isDataTable('#pagosProductoresTable')) {
                 $('#pagosProductoresTable').DataTable().destroy();
             }
@@ -409,9 +423,9 @@ const LotesComercialManager = {
         }, 100);
     },
 
-    verLotesProductor: function (productor) {
+    verLotesProductor: function(productor) {
         // Filtrar lotes del productor
-        var lotes = STATE.lotesComerciales.filter(function (lote) {
+        var lotes = STATE.lotesComerciales.filter(function(lote) {
             return lote.productor === productor;
         });
 
@@ -425,12 +439,12 @@ const LotesComercialManager = {
         showBootstrapAlert('Mostrando ' + lotes.length + ' lotes del productor: ' + productor, 'info');
     },
 
-    registrarPago: function (loteId) {
+    registrarPago: function(loteId) {
         try {
             console.log('Iniciando registro de pago para lote:', loteId);
 
             // Buscar el lote
-            var lote = STATE.lotesComerciales.find(function (l) { return l.id === loteId; });
+            var lote = STATE.lotesComerciales.find(function(l) { return l.id === loteId; });
             if (!lote) {
                 throw new Error('Lote no encontrado');
             }
@@ -471,7 +485,7 @@ const LotesComercialManager = {
         }
     },
 
-    guardarPago: function () {
+    guardarPago: function() {
         DOM.loadingSpinner.style.display = 'flex';
 
         var self = this;
@@ -521,8 +535,8 @@ const LotesComercialManager = {
             var loteRef = db.collection('lotes').doc(loteId);
 
             // Actualizar en Firestore usando promesas
-            db.runTransaction(function (transaction) {
-                return transaction.get(loteRef).then(function (loteDoc) {
+            db.runTransaction(function(transaction) {
+                return transaction.get(loteRef).then(function(loteDoc) {
                     if (!loteDoc.exists) {
                         throw new Error('El lote no existe');
                     }
@@ -561,19 +575,19 @@ const LotesComercialManager = {
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 });
-            }).then(function () {
+            }).then(function() {
                 // Cerrar modal
                 var modal = bootstrap.Modal.getInstance(DOM.modalRegistrarPago);
                 modal.hide();
 
                 // Recargar datos
                 return LotesComercialManager.cargar();
-            }).then(function () {
+            }).then(function() {
                 showBootstrapAlert('Pago registrado correctamente', 'success');
-            }).catch(function (error) {
+            }).catch(function(error) {
                 console.error('Error al guardar pago:', error);
                 showBootstrapAlert('Error al guardar el pago: ' + error.message, 'danger');
-            }).finally(function () {
+            }).finally(function() {
                 DOM.loadingSpinner.style.display = 'none';
             });
         } catch (error) {
@@ -583,10 +597,10 @@ const LotesComercialManager = {
         }
     },
 
-    verHistorialPagos: function (loteId) {
+    verHistorialPagos: function(loteId) {
         try {
             // Buscar el lote
-            var lote = STATE.lotesComerciales.find(function (l) { return l.id === loteId; });
+            var lote = STATE.lotesComerciales.find(function(l) { return l.id === loteId; });
             if (!lote) {
                 throw new Error('Lote no encontrado');
             }
@@ -605,7 +619,7 @@ const LotesComercialManager = {
 
             if (lote.pagos && lote.pagos.length > 0) {
                 // Ordenar pagos por fecha, del más reciente al más antiguo
-                var pagosOrdenados = lote.pagos.slice().sort(function (a, b) {
+                var pagosOrdenados = lote.pagos.slice().sort(function(a, b) {
                     return b.fecha.toDate() - a.fecha.toDate();
                 });
 
@@ -650,7 +664,7 @@ const LotesComercialManager = {
     },
 
     // Reemplazar la función renderLotesSinDataTable para evitar problemas con DataTables
-    renderLotesSinDataTable: function (lotes) {
+    renderLotesSinDataTable: function(lotes) {
         console.log('Renderizando lotes sin DataTable:', lotes.length, 'lotes a mostrar');
 
         // Primero eliminar completamente cualquier tabla existente
@@ -687,11 +701,11 @@ const LotesComercialManager = {
         // Añadir encabezados
         var tr = document.createElement('tr');
         ['Código', 'Fecha', 'Productor', 'Procedencia', 'Peso', 'Total', 'Pagado', 'Pendiente', 'Estado', 'Acciones']
-            .forEach(function (texto) {
-                var th = document.createElement('th');
-                th.textContent = texto;
-                tr.appendChild(th);
-            });
+        .forEach(function(texto) {
+            var th = document.createElement('th');
+            th.textContent = texto;
+            tr.appendChild(th);
+        });
         thead.appendChild(tr);
 
         // Si no hay lotes, mostrar mensaje
@@ -708,7 +722,7 @@ const LotesComercialManager = {
             DOM.cardViewLotesComercial.innerHTML = '<div class="alert alert-info">No hay lotes disponibles</div>';
         } else {
             // Renderizar cada lote como fila
-            lotes.forEach(function (lote) {
+            lotes.forEach(function(lote) {
                 // Crear fila
                 var tr = document.createElement('tr');
 
@@ -752,7 +766,7 @@ const LotesComercialManager = {
     },
 
     // Añadir una función para filtrar sin manipular DataTable
-    filtrarSinDataTable: function (filtro) {
+    filtrarSinDataTable: function(filtro) {
         console.log('Aplicando filtro sin DataTable:', filtro);
         STATE.filtroLotes = filtro;
         sessionStorage.setItem('filtroLotes', filtro);
@@ -761,17 +775,17 @@ const LotesComercialManager = {
         var lotesFiltrados = [];
         switch (filtro) {
             case 'pagados':
-                lotesFiltrados = STATE.lotesComerciales.filter(function (lote) {
+                lotesFiltrados = STATE.lotesComerciales.filter(function(lote) {
                     return lote.estado === 'pagado';
                 });
                 break;
             case 'parciales':
-                lotesFiltrados = STATE.lotesComerciales.filter(function (lote) {
+                lotesFiltrados = STATE.lotesComerciales.filter(function(lote) {
                     return lote.estado === 'parcial';
                 });
                 break;
             case 'pendientes':
-                lotesFiltrados = STATE.lotesComerciales.filter(function (lote) {
+                lotesFiltrados = STATE.lotesComerciales.filter(function(lote) {
                     return lote.estado === 'pendiente';
                 });
                 break;
@@ -792,82 +806,82 @@ const LotesComercialManager = {
 
 // ============= GESTIÓN DE SERVICIOS =============
 const ServiciosManager = {
-    cargar: function () {
-        DOM.loadingSpinner.style.display = 'flex';
-        try {
-            // Obtener todos los lotes para extraer los servicios
-            const servicios = [];
+        cargar: function() {
+            DOM.loadingSpinner.style.display = 'flex';
+            try {
+                // Obtener todos los lotes para extraer los servicios
+                const servicios = [];
 
-            STATE.lotes.forEach(lote => {
-                if (lote.gastos && Array.isArray(lote.gastos)) {
-                    lote.gastos.forEach(gasto => {
-                        servicios.push({
-                            id: `${lote.id}_${servicios.length}`, // ID compuesto
-                            loteId: lote.id,
-                            loteCodigo: lote.codigo,
-                            proveedor: gasto.responsable || 'No especificado',
-                            tipo: gasto.tipo || 'Otro',
-                            fecha: gasto.fecha ? new Date(gasto.fecha) : null,
-                            motivo: gasto.motivo || '',
-                            monto: gasto.monto || 0,
-                            pagado: gasto.pagado || false,
-                            pagos: gasto.pagos || []
+                STATE.lotes.forEach(lote => {
+                    if (lote.gastos && Array.isArray(lote.gastos)) {
+                        lote.gastos.forEach(gasto => {
+                            servicios.push({
+                                id: `${lote.id}_${servicios.length}`, // ID compuesto
+                                loteId: lote.id,
+                                loteCodigo: lote.codigo,
+                                proveedor: gasto.responsable || 'No especificado',
+                                tipo: gasto.tipo || 'Otro',
+                                fecha: gasto.fecha ? new Date(gasto.fecha) : null,
+                                motivo: gasto.motivo || '',
+                                monto: gasto.monto || 0,
+                                pagado: gasto.pagado || false,
+                                pagos: gasto.pagos || []
+                            });
                         });
-                    });
-                }
-            });
+                    }
+                });
 
-            STATE.servicios = servicios;
+                STATE.servicios = servicios;
 
-            // Filtrar y mostrar servicios según el filtro actual
-            ServiciosManager.filtrar(STATE.filtroServicios);
+                // Filtrar y mostrar servicios según el filtro actual
+                ServiciosManager.filtrar(STATE.filtroServicios);
 
-            // Actualizar estadísticas
-            LotesComercialManager.actualizarEstadisticas();
+                // Actualizar estadísticas
+                LotesComercialManager.actualizarEstadisticas();
 
-        } catch (error) {
-            console.error('Error al cargar servicios:', error);
-            showBootstrapAlert('Error al cargar los datos de servicios', 'danger');
-        } finally {
-            DOM.loadingSpinner.style.display = 'none';
-        }
-    },
+            } catch (error) {
+                console.error('Error al cargar servicios:', error);
+                showBootstrapAlert('Error al cargar los datos de servicios', 'danger');
+            } finally {
+                DOM.loadingSpinner.style.display = 'none';
+            }
+        },
 
-    filtrar: function (filtro) {
-        STATE.filtroServicios = filtro;
+        filtrar: function(filtro) {
+            STATE.filtroServicios = filtro;
 
-        // Aplicar filtro
-        let serviciosFiltrados = [];
-        switch (filtro) {
-            case 'pagados':
-                serviciosFiltrados = STATE.servicios.filter(servicio => servicio.pagado);
-                break;
-            case 'pendientes':
-                serviciosFiltrados = STATE.servicios.filter(servicio => !servicio.pagado);
-                break;
-            default:
-                serviciosFiltrados = STATE.servicios;
-        }
+            // Aplicar filtro
+            let serviciosFiltrados = [];
+            switch (filtro) {
+                case 'pagados':
+                    serviciosFiltrados = STATE.servicios.filter(servicio => servicio.pagado);
+                    break;
+                case 'pendientes':
+                    serviciosFiltrados = STATE.servicios.filter(servicio => !servicio.pagado);
+                    break;
+                default:
+                    serviciosFiltrados = STATE.servicios;
+            }
 
-        // Actualizar UI
-        ServiciosManager.renderServicios(serviciosFiltrados);
+            // Actualizar UI
+            ServiciosManager.renderServicios(serviciosFiltrados);
 
-        // Actualizar estado de botones
-        DOM.btnTodosServicios.classList.toggle('active', filtro === 'todos');
-        DOM.btnPagadosServicios.classList.toggle('active', filtro === 'pagados');
-        DOM.btnPendientesServicios.classList.toggle('active', filtro === 'pendientes');
-    },
+            // Actualizar estado de botones
+            DOM.btnTodosServicios.classList.toggle('active', filtro === 'todos');
+            DOM.btnPagadosServicios.classList.toggle('active', filtro === 'pagados');
+            DOM.btnPendientesServicios.classList.toggle('active', filtro === 'pendientes');
+        },
 
-    renderServicios: function (servicios) {
-        // Limpiar contenedores
-        DOM.tablaServicios.innerHTML = '';
+        renderServicios: function(servicios) {
+                // Limpiar contenedores
+                DOM.tablaServicios.innerHTML = '';
 
-        // Renderizar cada servicio
-        servicios.forEach(servicio => {
-            const fecha = servicio.fecha ? servicio.fecha.toLocaleDateString('es-PE') : 'N/A';
-            const tipoTexto = servicio.tipo ? (servicio.tipo.charAt(0).toUpperCase() + servicio.tipo.slice(1)) : 'Otro';
+                // Renderizar cada servicio
+                servicios.forEach(servicio => {
+                    const fecha = servicio.fecha ? servicio.fecha.toLocaleDateString('es-PE') : 'N/A';
+                    const tipoTexto = servicio.tipo ? (servicio.tipo.charAt(0).toUpperCase() + servicio.tipo.slice(1)) : 'Otro';
 
-            DOM.tablaServicios.innerHTML += `
+                    DOM.tablaServicios.innerHTML += `
                 <tr>
                     <td><strong>${servicio.loteCodigo || 'N/A'}</strong></td>
                     <td>${fecha}</td>
@@ -886,159 +900,157 @@ const ServiciosManager = {
                     </td>
                 </tr>
             `;
-        });
-
-        // Inicializar DataTable
-        setTimeout(function () {
-            if ($.fn.dataTable.isDataTable('#serviciosTable')) {
-                $('#serviciosTable').DataTable().destroy();
-            }
-            $('#serviciosTable').DataTable({
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
-                }
-            });
-        }, 100); // Se agregó el retraso y se cerró correctamente la llamada
-
-    },
-
-        registrarPago: function (servicioId) {
-            try {
-                // Buscar el servicio
-                const servicio = STATE.servicios.find(s => s.id === servicioId);
-                if (!servicio) {
-                    throw new Error('Servicio no encontrado');
-                }
-
-                STATE.servicioActual = servicio;
-
-                // Llenar el formulario
-                document.getElementById('pagoServicioId').value = servicio.id;
-                document.getElementById('pagoServicioCodigo').value = servicio.loteCodigo || '';
-                document.getElementById('pagoServicioProductor').value = servicio.proveedor || '';
-                document.getElementById('pagoServicioMonto').value = UTILS.formatNumber(servicio.monto || 0);
-                document.getElementById('pagoServicioFecha').value = UTILS.getFechaLocal().toISOString().split('T')[0];
-                document.getElementById('pagoServicioMetodo').value = '';
-                document.getElementById('pagoServicioComprobante').value = '';
-                document.getElementById('pagoServicioObservaciones').value = '';
-
-                // Mostrar modal
-                const modal = new bootstrap.Modal(DOM.modalPagoServicio);
-                modal.show();
-
-            } catch (error) {
-                console.error('Error al preparar registro de pago:', error);
-                showBootstrapAlert('Error al preparar el registro de pago', 'danger');
-            }
-        },
-
-        guardarPago: function () {
-            DOM.loadingSpinner.style.display = 'flex';
-
-            var self = this;
-
-            try {
-                const servicioId = document.getElementById('pagoServicioId').value;
-                const fecha = document.getElementById('pagoServicioFecha').value;
-                const metodo = document.getElementById('pagoServicioMetodo').value;
-                const monto = parseFloat(document.getElementById('pagoServicioMonto').value);
-                const comprobante = document.getElementById('pagoServicioComprobante').value;
-                const observaciones = document.getElementById('pagoServicioObservaciones').value;
-
-                // Validaciones
-                if (!fecha || !metodo || isNaN(monto) || monto <= 0) {
-                    throw new Error('Por favor complete todos los campos requeridos');
-                }
-
-                // Buscar el servicio
-                const servicio = STATE.servicios.find(function (s) { return s.id === servicioId; });
-                if (!servicio) {
-                    throw new Error('Servicio no encontrado');
-                }
-
-                // Crear objeto de pago
-                const pago = {
-                    fecha: firebase.firestore.Timestamp.fromDate(new Date(fecha)),
-                    metodo: metodo,
-                    monto: monto,
-                    comprobante: comprobante,
-                    observaciones: observaciones
-                };
-
-                // Obtener referencia al servicio
-                const servicioRef = db.collection('servicios').doc(servicioId);
-
-                // Actualizar en Firestore usando promesas en lugar de async/await
-                db.runTransaction(function (transaction) {
-                    return transaction.get(servicioRef).then(function (servicioDoc) {
-                        if (!servicioDoc.exists) {
-                            throw new Error('El servicio no existe');
-                        }
-
-                        const servicioData = servicioDoc.data();
-                        const pagos = servicioData.pagos || [];
-
-                        // Agregar el nuevo pago
-                        pagos.push(pago);
-
-                        // Actualizar el servicio
-                        transaction.update(servicioRef, {
-                            pagos: pagos,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    });
-                }).then(function () {
-                    // Cerrar modal
-                    const modal = bootstrap.Modal.getInstance(DOM.modalPagoServicio);
-                    modal.hide();
-
-                    // Recargar datos
-                    return ServiciosManager.cargar();
-                }).then(function () {
-                    showBootstrapAlert('Pago registrado correctamente', 'success');
-                }).catch(function (error) {
-                    console.error('Error al guardar pago:', error);
-                    showBootstrapAlert('Error al guardar el pago: ' + error.message, 'danger');
-                }).finally(function () {
-                    DOM.loadingSpinner.style.display = 'none';
                 });
-            } catch (error) {
-                console.error('Error al procesar formulario:', error);
-                showBootstrapAlert('Error al procesar el formulario: ' + error.message, 'danger');
-                DOM.loadingSpinner.style.display = 'none';
-            }
-        },
 
-        verHistorialPagos: function (servicioId) {
-            try {
-                // Buscar el servicio
-                const servicio = STATE.servicios.find(s => s.id === servicioId);
-                if (!servicio) {
-                    throw new Error('Servicio no encontrado');
-                }
+                // Inicializar DataTable
+                setTimeout(function() {
+                            if ($.fn.dataTable.isDataTable('#serviciosTable')) {
+                                $('#serviciosTable').DataTable().destroy();
+                            }
+                            $('#serviciosTable').DataTable({
+                                language: {
+                                    url: 'https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
+                                }
+                            });
+                        },
 
-                STATE.servicioActual = servicio;
+                        registrarPago: function(servicioId) {
+                            try {
+                                // Buscar el servicio
+                                const servicio = STATE.servicios.find(s => s.id === servicioId);
+                                if (!servicio) {
+                                    throw new Error('Servicio no encontrado');
+                                }
 
-                // Llenar información del servicio
-                document.getElementById('historialServicioCodigo').textContent = servicio.loteCodigo || '';
-                document.getElementById('historialServicioProductor').textContent = servicio.proveedor || '';
-                document.getElementById('historialServicioFecha').textContent = servicio.fecha ? servicio.fecha.toLocaleDateString('es-PE') : 'N/A';
-                document.getElementById('historialServicioMonto').textContent = `S/. ${UTILS.formatNumber(servicio.monto || 0)}`;
+                                STATE.servicioActual = servicio;
 
-                // Llenar timeline de pagos
-                const timelinePagos = document.getElementById('timelinePagosServicio');
-                timelinePagos.innerHTML = '';
+                                // Llenar el formulario
+                                document.getElementById('pagoServicioId').value = servicio.id;
+                                document.getElementById('pagoServicioCodigo').value = servicio.loteCodigo || '';
+                                document.getElementById('pagoServicioProductor').value = servicio.proveedor || '';
+                                document.getElementById('pagoServicioMonto').value = UTILS.formatNumber(servicio.monto || 0);
+                                document.getElementById('pagoServicioFecha').value = UTILS.getFechaLocal().toISOString().split('T')[0];
+                                document.getElementById('pagoServicioMetodo').value = '';
+                                document.getElementById('pagoServicioComprobante').value = '';
+                                document.getElementById('pagoServicioObservaciones').value = '';
 
-                if (servicio.pagos && servicio.pagos.length > 0) {
-                    // Ordenar pagos por fecha, del más reciente al más antiguo
-                    const pagosOrdenados = [...servicio.pagos].sort((a, b) => b.fecha.toDate() - a.fecha.toDate());
+                                // Mostrar modal
+                                const modal = new bootstrap.Modal(DOM.modalPagoServicio);
+                                modal.show();
 
-                    pagosOrdenados.forEach((pago, index) => {
-                        const fecha = pago.fecha.toDate().toLocaleDateString('es-PE');
-                        const hora = pago.fecha.toDate().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-                        const metodoTexto = UTILS.obtenerMetodoPagoTexto(pago.metodo);
+                            } catch (error) {
+                                console.error('Error al preparar registro de pago:', error);
+                                showBootstrapAlert('Error al preparar el registro de pago', 'danger');
+                            }
+                        },
 
-                        timelinePagos.innerHTML += `
+                        guardarPago: function() {
+                            DOM.loadingSpinner.style.display = 'flex';
+
+                            var self = this;
+
+                            try {
+                                const servicioId = document.getElementById('pagoServicioId').value;
+                                const fecha = document.getElementById('pagoServicioFecha').value;
+                                const metodo = document.getElementById('pagoServicioMetodo').value;
+                                const monto = parseFloat(document.getElementById('pagoServicioMonto').value);
+                                const comprobante = document.getElementById('pagoServicioComprobante').value;
+                                const observaciones = document.getElementById('pagoServicioObservaciones').value;
+
+                                // Validaciones
+                                if (!fecha || !metodo || isNaN(monto) || monto <= 0) {
+                                    throw new Error('Por favor complete todos los campos requeridos');
+                                }
+
+                                // Buscar el servicio
+                                const servicio = STATE.servicios.find(function(s) { return s.id === servicioId; });
+                                if (!servicio) {
+                                    throw new Error('Servicio no encontrado');
+                                }
+
+                                // Crear objeto de pago
+                                const pago = {
+                                    fecha: firebase.firestore.Timestamp.fromDate(new Date(fecha)),
+                                    metodo: metodo,
+                                    monto: monto,
+                                    comprobante: comprobante,
+                                    observaciones: observaciones
+                                };
+
+                                // Obtener referencia al servicio
+                                const servicioRef = db.collection('servicios').doc(servicioId);
+
+                                // Actualizar en Firestore usando promesas en lugar de async/await
+                                db.runTransaction(function(transaction) {
+                                    return transaction.get(servicioRef).then(function(servicioDoc) {
+                                        if (!servicioDoc.exists) {
+                                            throw new Error('El servicio no existe');
+                                        }
+
+                                        const servicioData = servicioDoc.data();
+                                        const pagos = servicioData.pagos || [];
+
+                                        // Agregar el nuevo pago
+                                        pagos.push(pago);
+
+                                        // Actualizar el servicio
+                                        transaction.update(servicioRef, {
+                                            pagos: pagos,
+                                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                        });
+                                    });
+                                }).then(function() {
+                                    // Cerrar modal
+                                    const modal = bootstrap.Modal.getInstance(DOM.modalPagoServicio);
+                                    modal.hide();
+
+                                    // Recargar datos
+                                    return ServiciosManager.cargar();
+                                }).then(function() {
+                                    showBootstrapAlert('Pago registrado correctamente', 'success');
+                                }).catch(function(error) {
+                                    console.error('Error al guardar pago:', error);
+                                    showBootstrapAlert('Error al guardar el pago: ' + error.message, 'danger');
+                                }).finally(function() {
+                                    DOM.loadingSpinner.style.display = 'none';
+                                });
+                            } catch (error) {
+                                console.error('Error al procesar formulario:', error);
+                                showBootstrapAlert('Error al procesar el formulario: ' + error.message, 'danger');
+                                DOM.loadingSpinner.style.display = 'none';
+                            }
+                        },
+
+                        verHistorialPagos: function(servicioId) {
+                            try {
+                                // Buscar el servicio
+                                const servicio = STATE.servicios.find(s => s.id === servicioId);
+                                if (!servicio) {
+                                    throw new Error('Servicio no encontrado');
+                                }
+
+                                STATE.servicioActual = servicio;
+
+                                // Llenar información del servicio
+                                document.getElementById('historialServicioCodigo').textContent = servicio.loteCodigo || '';
+                                document.getElementById('historialServicioProductor').textContent = servicio.proveedor || '';
+                                document.getElementById('historialServicioFecha').textContent = servicio.fecha ? servicio.fecha.toLocaleDateString('es-PE') : 'N/A';
+                                document.getElementById('historialServicioMonto').textContent = `S/. ${UTILS.formatNumber(servicio.monto || 0)}`;
+
+                                // Llenar timeline de pagos
+                                const timelinePagos = document.getElementById('timelinePagosServicio');
+                                timelinePagos.innerHTML = '';
+
+                                if (servicio.pagos && servicio.pagos.length > 0) {
+                                    // Ordenar pagos por fecha, del más reciente al más antiguo
+                                    const pagosOrdenados = [...servicio.pagos].sort((a, b) => b.fecha.toDate() - a.fecha.toDate());
+
+                                    pagosOrdenados.forEach((pago, index) => {
+                                                const fecha = pago.fecha.toDate().toLocaleDateString('es-PE');
+                                                const hora = pago.fecha.toDate().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+                                                const metodoTexto = UTILS.obtenerMetodoPagoTexto(pago.metodo);
+
+                                                timelinePagos.innerHTML += `
                                 <div class="timeline-container ${index % 2 === 0 ? 'left' : 'right'}">
                                     <div class="timeline-content">
                                         <h6 class="mb-1">S/. ${UTILS.formatNumber(pago.monto)}</h6>

@@ -9,22 +9,28 @@ function getChartColorsArray(r) {
     })
 }
 
-// Configuración de Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyBy_V4hsuhMrbq7NBTMG289ievV-nhzf68",
-    authDomain: "abigranos.firebaseapp.com",
-    projectId: "abigranos",
-    storageBucket: "abigranos.firebasestorage.app",
-    messagingSenderId: "405475347978",
-    appId: "1:405475347978:web:a0c9bb724903cca76b99f3"
-};
-
-// Inicializar Firebase si no está ya inicializado
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+// Usar la instancia de Firebase ya inicializada
+let db;
+try {
+    // Intentar obtener la instancia de Firestore
+    if (window.db) {
+        // Usar la instancia ya inicializada en dashboard.html
+        db = window.db;
+        console.log("Usando instancia de Firestore ya inicializada");
+    } else if (window.firebase && window.firebase.firestore) {
+        // Inicializar desde la instancia de Firebase
+        db = window.firebase.firestore();
+        console.log("Conexión a Firestore establecida desde firebase global");
+    } else if (firebase && firebase.firestore) {
+        // Fallback a la variable global firebase
+        db = firebase.firestore();
+        console.log("Conexión a Firestore establecida desde firebase local");
+    } else {
+        throw new Error("No se pudo acceder a Firestore");
+    }
+} catch (error) {
+    console.error("Error al conectar con Firestore:", error);
 }
-
-const db = firebase.firestore();
 
 // Estado global para el dashboard
 const DASHBOARD_STATE = {
@@ -64,16 +70,67 @@ const formatNumber = (number) => {
 
 // Función para formatear fechas
 const formatDate = (timestamp) => {
-    const date = timestamp instanceof Date ? timestamp : timestamp.toDate();
-    return new Intl.DateTimeFormat('es-CL', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    }).format(date);
+    let date;
+
+    try {
+        // Verificar el tipo de timestamp y convertirlo a Date
+        if (timestamp instanceof Date) {
+            // Ya es un objeto Date
+            date = timestamp;
+        } else if (timestamp && typeof timestamp.toDate === 'function') {
+            // Es un timestamp de Firestore
+            date = timestamp.toDate();
+        } else if (timestamp && timestamp._seconds) {
+            // Es un objeto timestamp de Firestore en formato serializado
+            date = new Date(timestamp._seconds * 1000);
+        } else if (timestamp && typeof timestamp === 'number') {
+            // Es un timestamp en milisegundos
+            date = new Date(timestamp);
+        } else if (timestamp && typeof timestamp === 'string') {
+            // Es una fecha en formato string
+            date = new Date(timestamp);
+        } else {
+            // Fallback a fecha actual
+            console.warn("Formato de fecha no reconocido:", timestamp);
+            date = new Date();
+        }
+
+        return new Intl.DateTimeFormat('es-CL', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).format(date);
+    } catch (error) {
+        console.error("Error al formatear fecha:", error, timestamp);
+        return "Fecha inválida";
+    }
+};
+
+// Función para obtener el color según el estado
+const getEstadoColor = (estado) => {
+    if (!estado) return 'secondary';
+
+    switch (estado.toLowerCase()) {
+        case 'completado':
+            return 'success';
+        case 'procesado':
+            return 'info';
+        case 'pendiente':
+            return 'warning';
+        case 'cancelado':
+            return 'danger';
+        default:
+            return 'secondary';
+    }
 };
 
 // Función para obtener datos de carguíos
 const cargarDatosCarguios = () => {
+    if (!db) {
+        console.error("No se puede cargar datos de carguíos: Firestore no está disponible");
+        return;
+    }
+
     db.collection('lotes')
         .where("estadodoc", "==", "activo") // Filtrar solo lotes activos
         .get()
@@ -122,6 +179,11 @@ const cargarDatosCarguios = () => {
 
 // Función para obtener datos de pagos
 const cargarDatosPagos = () => {
+    if (!db) {
+        console.error("No se puede cargar datos de pagos: Firestore no está disponible");
+        return;
+    }
+
     // Obtener pagos desde la colección lotes
     db.collection('lotes')
         .where("estadodoc", "==", "activo") // Filtrar solo lotes activos
@@ -183,6 +245,11 @@ const cargarDatosPagos = () => {
 
 // Función para obtener datos de despachos
 const cargarDatosDespachos = () => {
+    if (!db) {
+        console.error("No se puede cargar datos de despachos: Firestore no está disponible");
+        return;
+    }
+
     // Buscar todos los lotes con ventas
     db.collection('lotes')
         .where("estadodoc", "==", "activo") // Filtrar solo lotes activos
@@ -303,6 +370,32 @@ const initCountersBasic = () => {
             element.innerText = target.toString();
         }
     });
+};
+
+// Función para inicializar contadores
+const initCounters = () => {
+    try {
+        // Verificar si counterUp está disponible
+        if (typeof counterUp === 'function') {
+            // Inicializar contadores con counterUp
+            document.querySelectorAll('.counter-value').forEach(function(counter) {
+                const target = parseInt(counter.getAttribute('data-target') || '0');
+                counterUp(counter, {
+                    duration: 1000,
+                    delay: 16,
+                });
+                counter.textContent = target.toString();
+            });
+            console.log("Contadores inicializados con counterUp");
+        } else {
+            // Implementación básica si counterUp no está disponible
+            initCountersBasic();
+        }
+    } catch (error) {
+        console.error("Error al inicializar contadores:", error);
+        // Fallback a implementación básica
+        initCountersBasic();
+    }
 };
 
 // Inicialización del gráfico de estado de carguíos (reemplaza Wallet Balance)
@@ -629,92 +722,181 @@ const initDespachosChart = () => {
 
 // Función para actualizar la tabla de últimos carguíos
 const actualizarTablaUltimosCarguios = () => {
-    if (!DASHBOARD_STATE.dataLoaded.carguios) return;
-
-    const tablaCarguios = document.querySelector("#ultimos-carguios");
-    if (!tablaCarguios) return;
-
-    // Tomar los 5 carguíos más recientes
-    // Ordenar por fecha, más recientes primero
-    const carguiosOrdenados = [...DASHBOARD_STATE.carguios].sort((a, b) => {
-        const fechaA = a.fecha instanceof Date ? a.fecha : a.fecha.toDate();
-        const fechaB = b.fecha instanceof Date ? b.fecha : b.fecha.toDate();
-        return fechaB - fechaA;
-    });
-
-    const ultimosCarguios = carguiosOrdenados.slice(0, 5);
-
-    let html = '';
-    ultimosCarguios.forEach(carguio => {
-        const fecha = carguio.fecha instanceof Date ? carguio.fecha : carguio.fecha.toDate();
-
-        // Determinar el estado del carguío
-        let estadoClase = 'danger';
-        let estadoTexto = 'Pendiente';
-
-        if (carguio.estado === 'completado') {
-            estadoClase = 'success';
-            estadoTexto = 'Completado';
-        } else if (carguio.estado === 'procesado') {
-            estadoClase = 'warning';
-            estadoTexto = 'Procesado';
+    try {
+        const tablaBody = document.getElementById('ultimos-carguios');
+        if (!tablaBody) {
+            console.error("No se encontró el elemento 'ultimos-carguios'");
+            return;
         }
 
-        html += `
-            <tr>
-                <td>${carguio.codigo}</td>
-                <td>${carguio.productor}</td>
-                <td>${carguio.costales} costales</td>
-                <td>${carguio.peso.toLocaleString()} kg</td>
-                <td><span class="badge bg-${estadoClase}">${estadoTexto}</span></td>
-                <td>${formatDate(fecha)}</td>
-            </tr>
-        `;
-    });
+        // Limpiar tabla
+        tablaBody.innerHTML = '';
 
-    tablaCarguios.innerHTML = html;
+        // Ordenar carguíos por fecha, más recientes primero
+        const carguiosOrdenados = [...DASHBOARD_STATE.carguios].sort((a, b) => {
+            // Convertir ambas fechas a objetos Date para comparación
+            let fechaA, fechaB;
+
+            try {
+                // Simplificamos la lógica de conversión de fechas
+                if (a.fecha instanceof Date) {
+                    fechaA = a.fecha;
+                } else if (a.fecha && typeof a.fecha.toDate === 'function') {
+                    fechaA = a.fecha.toDate();
+                } else if (a.fecha && a.fecha._seconds) {
+                    fechaA = new Date(a.fecha._seconds * 1000);
+                } else {
+                    fechaA = new Date(a.fecha || 0);
+                }
+            } catch (e) {
+                fechaA = new Date(0);
+                console.warn("Error al convertir fecha A:", e);
+            }
+
+            try {
+                // Simplificamos la lógica de conversión de fechas
+                if (b.fecha instanceof Date) {
+                    fechaB = b.fecha;
+                } else if (b.fecha && typeof b.fecha.toDate === 'function') {
+                    fechaB = b.fecha.toDate();
+                } else if (b.fecha && b.fecha._seconds) {
+                    fechaB = new Date(b.fecha._seconds * 1000);
+                } else {
+                    fechaB = new Date(b.fecha || 0);
+                }
+            } catch (e) {
+                fechaB = new Date(0);
+                console.warn("Error al convertir fecha B:", e);
+            }
+
+            return fechaB - fechaA;
+        });
+
+        // Tomar solo los 5 más recientes
+        const ultimosCarguios = carguiosOrdenados.slice(0, 5);
+
+        // Agregar filas a la tabla
+        ultimosCarguios.forEach(carguio => {
+            const row = document.createElement('tr');
+
+            // Formatear fecha de manera segura
+            let fechaFormateada;
+            try {
+                fechaFormateada = formatDate(carguio.fecha);
+            } catch (e) {
+                console.warn("Error al formatear fecha:", e);
+                fechaFormateada = "Fecha inválida";
+            }
+
+            row.innerHTML = `
+                <td><a href="#" class="text-body fw-bold">${carguio.codigo || 'Sin código'}</a></td>
+                <td>${carguio.productor || 'Sin asignar'}</td>
+                <td>${carguio.costales || 0}</td>
+                <td>${carguio.peso || 0} kg</td>
+                <td><span class="badge badge-soft-${getEstadoColor(carguio.estado)}">${carguio.estado || 'pendiente'}</span></td>
+                <td>${fechaFormateada}</td>
+            `;
+            tablaBody.appendChild(row);
+        });
+
+        if (ultimosCarguios.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="6" class="text-center">No hay carguíos registrados</td>';
+            tablaBody.appendChild(row);
+        }
+    } catch (error) {
+        console.error("Error al actualizar tabla de últimos carguíos:", error);
+    }
 };
 
 // Función para actualizar la tabla de últimos despachos
 const actualizarTablaUltimosDespachos = () => {
-    if (!DASHBOARD_STATE.dataLoaded.despachos) return;
-
-    const tablaDespachos = document.querySelector("#ultimos-despachos");
-    if (!tablaDespachos) return;
-
-    // Tomar los 5 despachos más recientes
-    const ultimosDespachos = DASHBOARD_STATE.despachos.slice(0, 5);
-
-    let html = '';
-    ultimosDespachos.forEach(despacho => {
-        const fecha = despacho.fecha instanceof Date ? despacho.fecha : despacho.fecha.toDate();
-
-        // Determinar el estado del despacho
-        let estadoClase = 'danger';
-        let estadoTexto = 'Pendiente';
-
-        if (despacho.estado === 'completado') {
-            estadoClase = 'success';
-            estadoTexto = 'Completado';
-        } else if (despacho.estado === 'procesado') {
-            estadoClase = 'warning';
-            estadoTexto = 'Procesado';
+    try {
+        const tablaBody = document.getElementById('ultimos-despachos');
+        if (!tablaBody) {
+            console.error("No se encontró el elemento 'ultimos-despachos'");
+            return;
         }
 
-        html += `
-            <tr>
-                <td>${despacho.id}</td>
-                <td>${despacho.cliente}</td>
-                <td>${despacho.cantidad.toLocaleString()} kg</td>
+        // Limpiar tabla
+        tablaBody.innerHTML = '';
+
+        // Ordenar despachos por fecha, más recientes primero
+        const despachosOrdenados = [...DASHBOARD_STATE.despachos].sort((a, b) => {
+            // Convertir ambas fechas a objetos Date para comparación
+            let fechaA, fechaB;
+
+            try {
+                // Simplificamos la lógica de conversión de fechas
+                if (a.fecha instanceof Date) {
+                    fechaA = a.fecha;
+                } else if (a.fecha && typeof a.fecha.toDate === 'function') {
+                    fechaA = a.fecha.toDate();
+                } else if (a.fecha && a.fecha._seconds) {
+                    fechaA = new Date(a.fecha._seconds * 1000);
+                } else {
+                    fechaA = new Date(a.fecha || 0);
+                }
+            } catch (e) {
+                fechaA = new Date(0);
+                console.warn("Error al convertir fecha A:", e);
+            }
+
+            try {
+                // Simplificamos la lógica de conversión de fechas
+                if (b.fecha instanceof Date) {
+                    fechaB = b.fecha;
+                } else if (b.fecha && typeof b.fecha.toDate === 'function') {
+                    fechaB = b.fecha.toDate();
+                } else if (b.fecha && b.fecha._seconds) {
+                    fechaB = new Date(b.fecha._seconds * 1000);
+                } else {
+                    fechaB = new Date(b.fecha || 0);
+                }
+            } catch (e) {
+                fechaB = new Date(0);
+                console.warn("Error al convertir fecha B:", e);
+            }
+
+            return fechaB - fechaA;
+        });
+
+        // Tomar solo los 5 más recientes
+        const ultimosDespachos = despachosOrdenados.slice(0, 5);
+
+        // Agregar filas a la tabla
+        ultimosDespachos.forEach(despacho => {
+            const row = document.createElement('tr');
+
+            // Formatear fecha de manera segura
+            let fechaFormateada;
+            try {
+                fechaFormateada = formatDate(despacho.fecha);
+            } catch (e) {
+                console.warn("Error al formatear fecha:", e);
+                fechaFormateada = "Fecha inválida";
+            }
+
+            row.innerHTML = `
+                <td><a href="#" class="text-body fw-bold">${despacho.id || 'Sin código'}</a></td>
+                <td>${despacho.cliente || 'Sin cliente'}</td>
+                <td>${despacho.cantidad || 0}</td>
                 <td>${formatNumber(despacho.precio || 0)}</td>
                 <td>${formatNumber(despacho.total || 0)}</td>
-                <td><span class="badge bg-${estadoClase}">${estadoTexto}</span></td>
-                <td>${formatDate(fecha)}</td>
-            </tr>
-        `;
-    });
+                <td><span class="badge badge-soft-${getEstadoColor(despacho.estado)}">${despacho.estado || 'pendiente'}</span></td>
+                <td>${fechaFormateada}</td>
+            `;
+            tablaBody.appendChild(row);
+        });
 
-    tablaDespachos.innerHTML = html;
+        if (ultimosDespachos.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="7" class="text-center">No hay despachos registrados</td>';
+            tablaBody.appendChild(row);
+        }
+    } catch (error) {
+        console.error("Error al actualizar tabla de últimos despachos:", error);
+    }
 };
 
 // Inicializar el mapa de ventas (Sales by Locations)
@@ -781,8 +963,7 @@ const initMiniCharts = () => {
         if (minichart1Element) {
             const minichart1Colors = getChartColorsArray("#mini-chart1");
             const carguiosData = DASHBOARD_STATE.carguios.length > 0 ?
-                DASHBOARD_STATE.carguios.slice(0, 15).map(c => (c.peso || 0) / 1000).reverse() :
-                [0, 0, 0, 0, 0]; // Datos de ejemplo si no hay carguíos
+                DASHBOARD_STATE.carguios.slice(0, 15).map(c => (c.peso || 0) / 1000).reverse() : [0, 0, 0, 0, 0]; // Datos de ejemplo si no hay carguíos
 
             const options1 = {
                 series: [{
@@ -810,8 +991,7 @@ const initMiniCharts = () => {
         if (minichart2Element) {
             const minichart2Colors = getChartColorsArray("#mini-chart2");
             const pagosData = DASHBOARD_STATE.pagos.length > 0 ?
-                DASHBOARD_STATE.pagos.slice(0, 15).map(p => (p.monto || 0) / 1000000).reverse() :
-                [0, 0, 0, 0, 0]; // Datos de ejemplo si no hay pagos
+                DASHBOARD_STATE.pagos.slice(0, 15).map(p => (p.monto || 0) / 1000000).reverse() : [0, 0, 0, 0, 0]; // Datos de ejemplo si no hay pagos
 
             const options2 = {
                 series: [{
@@ -839,8 +1019,7 @@ const initMiniCharts = () => {
         if (minichart3Element) {
             const minichart3Colors = getChartColorsArray("#mini-chart3");
             const despachosData = DASHBOARD_STATE.despachos.length > 0 ?
-                DASHBOARD_STATE.despachos.slice(0, 15).map(d => (d.total || 0) / 1000000).reverse() :
-                [0, 0, 0, 0, 0]; // Datos de ejemplo si no hay despachos
+                DASHBOARD_STATE.despachos.slice(0, 15).map(d => (d.total || 0) / 1000000).reverse() : [0, 0, 0, 0, 0]; // Datos de ejemplo si no hay despachos
 
             const options3 = {
                 series: [{
@@ -868,8 +1047,7 @@ const initMiniCharts = () => {
         if (minichart4Element) {
             const minichart4Colors = getChartColorsArray("#mini-chart4");
             const preciosData = DASHBOARD_STATE.despachos.length > 0 ?
-                DASHBOARD_STATE.despachos.slice(0, 15).map(d => (d.precio || 0) / 1000).reverse() :
-                [0, 0, 0, 0, 0]; // Datos de ejemplo si no hay despachos
+                DASHBOARD_STATE.despachos.slice(0, 15).map(d => (d.precio || 0) / 1000).reverse() : [0, 0, 0, 0, 0]; // Datos de ejemplo si no hay despachos
 
             const options4 = {
                 series: [{

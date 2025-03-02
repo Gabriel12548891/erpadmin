@@ -1,21 +1,31 @@
-// Agregar la inicialización de Firebase si no existe una app
-const firebaseConfig = {
-    apiKey: "AIzaSyBy_V4hsuhMrbq7NBTMG289ievV-nhzf68",
-    authDomain: "abigranos.firebaseapp.com",
-    projectId: "abigranos",
-    storageBucket: "abigranos.firebasestorage.app",
-    messagingSenderId: "405475347978",
-    appId: "1:405475347978:web:a0c9bb724903cca76b99f3"
-};
+// Verificar si Firebase ya está inicializado
+let dbFinanzas;
+try {
+    // Verificar si firebase ya está disponible y tiene apps inicializadas
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+        console.log('Usando instancia de Firebase existente en despachos.js');
+        dbFinanzas = firebase.firestore();
+    } else {
+        // Solo inicializar si no está ya inicializado
+        console.log('Inicializando Firebase en despachos.js');
+        const firebaseConfig = {
+            apiKey: "AIzaSyBy_V4hsuhMrbq7NBTMG289ievV-nhzf68",
+            authDomain: "abigranos.firebaseapp.com",
+            projectId: "abigranos",
+            storageBucket: "abigranos.firebasestorage.app",
+            messagingSenderId: "405475347978",
+            appId: "1:405475347978:web:a0c9bb724903cca76b99f3"
+        };
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
+        dbFinanzas = firebase.firestore();
+    }
+} catch (error) {
+    console.error('Error al configurar Firebase en despachos.js:', error);
 }
 
-const dbFinanzas = firebase.firestore();
-
 const STATE_FINANZAS = {
-    lotes: []  // Lotes disponibles para la venta
+    lotes: [] // Lotes disponibles para la venta
 };
 
 const FinanzasManager = {
@@ -42,7 +52,7 @@ const FinanzasManager = {
             });
     },
 
-    cargarLotes: function () {
+    cargarLotes: function() {
         dbFinanzas.collection('lotes')
             .where("estadodoc", "==", "activo")
             .get()
@@ -55,10 +65,10 @@ const FinanzasManager = {
             });
     },
 
-    renderLotes: function (lotes) {
+    renderLotes: function(lotes) {
         // Nuevo: Leer estado del toggle para ocultar lotes vendidos al 100%
-        const hideSold = document.getElementById('toggleSoldOut')?.checked;
-        
+        const hideSold = document.getElementById('toggleSoldOut') ? .checked;
+
         // Actualizar cabecera con columna "Ventas"
         const theadHTML = `
             <tr>
@@ -80,9 +90,9 @@ const FinanzasManager = {
         } else {
             lotes.forEach(lote => {
                 const fecha = lote.fecha ? lote.fecha.toDate().toLocaleDateString('es-PE') : 'N/A';
-                const vendido = (lote.ventas && Array.isArray(lote.ventas))
-                                  ? lote.ventas.reduce((sum, v) => sum + parseFloat(v.cantidad || 0), 0)
-                                  : 0;
+                const vendido = (lote.ventas && Array.isArray(lote.ventas)) ?
+                    lote.ventas.reduce((sum, v) => sum + parseFloat(v.cantidad || 0), 0) :
+                    0;
                 const pesoNeto = lote.pesoNeto ? parseFloat(lote.pesoNeto) : 0;
                 const saldo = pesoNeto - vendido;
                 // Si se activa el filtro y el saldo es 0, omitir este lote
@@ -90,9 +100,9 @@ const FinanzasManager = {
                 // Calcular porcentaje para progress bar (con protección contra división por 0)
                 const porcentaje = pesoNeto > 0 ? ((saldo / pesoNeto) * 100).toFixed(0) : 0;
                 // Crear resumen de ventas: concatenar código de cada venta y cantidad
-                const ventasResumen = (lote.ventas && Array.isArray(lote.ventas))
-                    ? lote.ventas.map(v => `${v.codigoVenta} (${v.cantidad} kg)`).join(" | ")
-                    : 'N/A';
+                const ventasResumen = (lote.ventas && Array.isArray(lote.ventas)) ?
+                    lote.ventas.map(v => `${v.codigoVenta} (${v.cantidad} kg)`).join(" | ") :
+                    'N/A';
                 tbodyHTML += `
                     <tr>
                         <td>
@@ -145,11 +155,11 @@ const FinanzasManager = {
         }
     },
 
-    registrarVenta: function (event) {
+    registrarVenta: function(event) {
         event.preventDefault();
         const cliente = document.getElementById('cliente').value;
         // Se eliminó la obtención del campo "cantidad"
-        
+
         // Recoger campos de la Orden de Compra
         const ordenCompraNumero = document.getElementById('ordenCompraNumero').value.trim();
         const ordenCompraFecha = document.getElementById('ordenCompraFecha').value;
@@ -185,46 +195,46 @@ const FinanzasManager = {
 
         // Obtener el nuevo código de venta consecutivo y proceder con la actualización
         FinanzasManager.obtenerNuevoCodigoVenta()
-        .then(codigoVenta => {
-            // Usar codigoVenta consecutivo, ej. "V001", "V002", ...
-            const updatePromises = lotesSeleccionados.map(loteObj => {
-                const ventaDetalle = {
-                    codigoVenta: codigoVenta,
-                    cantidad: loteObj.cantidad,
-                    cliente: cliente,
-                    NCompra: ordenCompraNumero,
-                    ordenCompra: ordenCompra,
-                    // Usar firebase.firestore.Timestamp.now() en lugar de FieldValue.serverTimestamp()
-                    timestamp: firebase.firestore.Timestamp.now()
-                };
-                return dbFinanzas.collection('lotes')
-                    .doc(loteObj.id)
-                    .update({
-                        ventas: firebase.firestore.FieldValue.arrayUnion(ventaDetalle)
-                    });
+            .then(codigoVenta => {
+                // Usar codigoVenta consecutivo, ej. "V001", "V002", ...
+                const updatePromises = lotesSeleccionados.map(loteObj => {
+                    const ventaDetalle = {
+                        codigoVenta: codigoVenta,
+                        cantidad: loteObj.cantidad,
+                        cliente: cliente,
+                        NCompra: ordenCompraNumero,
+                        ordenCompra: ordenCompra,
+                        // Usar firebase.firestore.Timestamp.now() en lugar de FieldValue.serverTimestamp()
+                        timestamp: firebase.firestore.Timestamp.now()
+                    };
+                    return dbFinanzas.collection('lotes')
+                        .doc(loteObj.id)
+                        .update({
+                            ventas: firebase.firestore.FieldValue.arrayUnion(ventaDetalle)
+                        });
+                });
+                return Promise.all(updatePromises);
+            })
+            .then(() => {
+                showAlert("Venta registrada correctamente en cada lote.", "success");
+                document.getElementById('ventaForm').reset();
+                document.querySelectorAll('.lote-checkbox').forEach(cb => cb.checked = false);
+                document.querySelectorAll('.lote-cantidad').forEach(input => input.value = '');
+                // Primero actualizamos los lotes
+                return FinanzasManager.cargarLotes();
+            })
+            .then(() => {
+                // Después actualizamos las ventas
+                return FinanzasManager.cargarVentas();
+            })
+            .catch(error => {
+                console.error("Error registrando la venta en los lotes:", error);
+                showAlert("Error registrando la venta: " + error.message, "danger");
             });
-            return Promise.all(updatePromises);
-        })
-        .then(() => {
-            showAlert("Venta registrada correctamente en cada lote.", "success");
-            document.getElementById('ventaForm').reset();
-            document.querySelectorAll('.lote-checkbox').forEach(cb => cb.checked = false);
-            document.querySelectorAll('.lote-cantidad').forEach(input => input.value = '');
-            // Primero actualizamos los lotes
-            return FinanzasManager.cargarLotes();
-        })
-        .then(() => {
-            // Después actualizamos las ventas
-            return FinanzasManager.cargarVentas();
-        })
-        .catch(error => {
-            console.error("Error registrando la venta en los lotes:", error);
-            showAlert("Error registrando la venta: " + error.message, "danger");
-        });
     },
 
     // Actualizamos cargarVentas para extraer ventas y usar el campo "codigo" del lote
-    cargarVentas: function () {
+    cargarVentas: function() {
         dbFinanzas.collection('lotes')
             .onSnapshot(snapshot => {
                 const salesMap = {};
@@ -258,16 +268,16 @@ const FinanzasManager = {
             });
     },
 
-    renderVentas: function (ventas) {
+    renderVentas: function(ventas) {
         let tbodyHTML = "";
         if (!ventas || ventas.length === 0) {
             tbodyHTML = '<tr><td colspan="7" class="text-center">No hay ventas registradas</td></tr>';
         } else {
             ventas.forEach(venta => {
                 const fecha = venta.fecha ? venta.fecha.toLocaleDateString('es-PE') : 'N/A';
-                const lotesInfo = venta.lotes && venta.lotes.length > 0
-                    ? venta.lotes.map(l => `Lote ${l.codigo}: ${l.cantidad} kg`).join("<br>")
-                    : 'N/A';
+                const lotesInfo = venta.lotes && venta.lotes.length > 0 ?
+                    venta.lotes.map(l => `Lote ${l.codigo}: ${l.cantidad} kg`).join("<br>") :
+                    'N/A';
                 tbodyHTML += `
                     <tr>
                         <td>${venta.codigo || 'N/A'}</td> <!-- Código de Venta -->
@@ -316,8 +326,8 @@ const FinanzasManager = {
                 if (ventasActualizadas.length !== lote.ventas.length) {
                     updatePromises.push(
                         dbFinanzas.collection('lotes')
-                            .doc(lote.id)
-                            .update({ ventas: ventasActualizadas })
+                        .doc(lote.id)
+                        .update({ ventas: ventasActualizadas })
                     );
                 }
             }
@@ -370,20 +380,20 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmBtn.addEventListener('click', function() {
         const codigoVenta = this.getAttribute('data-venta-codigo');
         FinanzasManager.eliminarVenta(codigoVenta)
-        .then(() => {
-            showAlert("Venta " + codigoVenta + " eliminada correctamente.", "success");
-            return FinanzasManager.cargarLotes();
-        })
-        .then(() => {
-            // Forzar la recarga de la tabla de ventas después de un breve retardo
-            setTimeout(() => {
-                FinanzasManager.cargarVentas();
-                bootstrap.Modal.getInstance(document.getElementById('deleteSaleModal')).hide();
-            }, 500);
-        })
-        .catch(error => {
-            console.error("Error eliminando la venta:", error);
-            showAlert("Error eliminando la venta: " + error.message, "danger");
-        });
+            .then(() => {
+                showAlert("Venta " + codigoVenta + " eliminada correctamente.", "success");
+                return FinanzasManager.cargarLotes();
+            })
+            .then(() => {
+                // Forzar la recarga de la tabla de ventas después de un breve retardo
+                setTimeout(() => {
+                    FinanzasManager.cargarVentas();
+                    bootstrap.Modal.getInstance(document.getElementById('deleteSaleModal')).hide();
+                }, 500);
+            })
+            .catch(error => {
+                console.error("Error eliminando la venta:", error);
+                showAlert("Error eliminando la venta: " + error.message, "danger");
+            });
     });
 });

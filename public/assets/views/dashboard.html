@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Dashboard Content</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap Css -->
+    <link href="/public/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="/public/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="/public/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+    <!-- plugin css -->
+    <link href="/public/assets/css/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div class="container-fluid">
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                    <h4 class="mb-sm-0 font-size-18">Dashboard</h4>
+
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- end page title -->
+
+        <div class="row">
+            <div class="col-xl-3 col-md-6">
+                <!-- card -->
+                <div class="card card-h-100">
+                    <!-- card body -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <span class="text-muted mb-3 lh-1 d-block text-truncate">Total
+                                    Carguíos</span>
+                                <h4 class="mb-3">
+                                    <span class="counter-value" id="total-carguios" data-target="0">0</span>
+                                </h4>
+                                <div class="text-nowrap">
+                                    <span class="badge bg-success-subtle text-success">+20.9%</span>
+                                    <span class="ms-1 text-muted font-size-13">Desde el mes pasado</span>
+                                </div>
+                            </div>
+
+                            <div class="flex-shrink-0 text-end dash-widget">
+                                <div id="mini-chart1" data-colors='["#1c84ee"]' class="apex-charts"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end card body -->
+                </div>
+                <!-- end card -->
+            </div>
+            <!-- end col -->
+
+            <div class="col-xl-3 col-md-6">
+                <!-- card -->
+                <div class="card card-h-100">
+                    <!-- card body -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Pagos</span>
+                                <h4 class="mb-3">
+                                    <span class="counter-value" id="total-pagos" data-target="0">$0</span>
+                                </h4>
+                                <div class="text-nowrap">
+                                    <span class="badge bg-danger-subtle text-danger">-5.7%</span>
+                                    <span class="ms-1 text-muted font-size-13">Desde el mes pasado</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 text-end dash-widget">
+                                <div id="mini-chart2" data-colors='["#34c38f"]' class="apex-charts"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end card body -->
+                </div>
+                <!-- end card -->
+            </div>
+            <!-- end col-->
+
+            <div class="col-xl-3 col-md-6">
+                <!-- card -->
+                <div class="card card-h-100">
+                    <!-- card body -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <span class="text-muted mb-3 lh-1 d-block text-truncate">Total
+                                    Despachos</span>
+                                <h4 class="mb-3">
+                                    <span class="counter-value" id="total-despachos" data-target="0">$0</span>
+                                </h4>
+                                <div class="text-nowrap">
+                                    <span class="badge bg-success-subtle text-success">+14.5%</span>
+                                    <span class="ms-1 text-muted font-size-13">Desde el mes pasado</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 text-end dash-widget">
+                                <div id="mini-chart3" data-colors='["#f17525"]' class="apex-charts"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end card body -->
+                </div>
+                <!-- end card -->
+            </div>
+            <!-- end col -->
+
+            <div class="col-xl-3 col-md-6">
+                <!-- card -->
+                <div class="card card-h-100">
+                    <!-- card body -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <span class="text-muted mb-3 lh-1 d-block text-truncate">Peso Total</span>
+                                <h4 class="mb-3">
+                                    <span id="peso-total">0 kg</span>
+                                </h4>
+                                <div class="text-nowrap">
+                                    <span class="badge bg-success-subtle text-success">+8.5%</span>
+                                    <span class="ms-1 text-muted font-size-13">Desde el mes pasado</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 text-end dash-widget">
+                                <div id="mini-chart4" data-colors='["#5156be"]' class="apex-charts"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end card body -->
+                </div>
+                <!-- end card -->
+            </div>
+            <!-- end col -->
+        </div>
+        <!-- end row-->
+
+        <div class="row">
+            <div class="col-xl-5">
+                <!-- card -->
+                <div class="card card-h-100">
+                    <!-- card body -->
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap align-items-center mb-4">
+                            <h5 class="card-title me-2">Estado de Carguíos</h5>
+                            <div class="ms-auto">
+                                <div>
+                                    <button type="button" class="btn btn-soft-primary btn-sm">
+                                        TODOS
+                                    </button>
+                                    <button type="button" class="btn btn-soft-secondary btn-sm">
+                                        30D
+                                    </button>
+                                    <button type="button" class="btn btn-soft-secondary btn-sm">
+                                        90D
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center">
+                            <div class="col-sm">
+                                <div id="wallet-balance" data-colors='["#777aca", "#5156be", "#a8aada"]' class="apex-charts"></div>
+                            </div>
+                            <div class="col-sm align-self-center">
+                                <div id="wallet-balance-legend" class="mt-4 mt-sm-0">
+                                    <!-- Esta sección se actualizará dinámicamente desde JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end card -->
+            </div>
+            <!-- end col -->
+            <div class="col-xl-7">
+                <div class="row">
+                    <div class="col-xl-8">
+                        <!-- card -->
+                        <div class="card card-h-100">
+                            <!-- card body -->
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap align-items-center mb-4">
+                                    <h5 class="card-title me-2">Progreso de Pagos</h5>
+                                    <div class="ms-auto">
+                                        <select class="form-select form-select-sm">
+                                            <option value="ACTUAL" selected="">Mes Actual</option>
+                                            <option value="LAST">Mes Anterior</option>
+                                            <option value="YEAR">Este Año</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row align-items-center">
+                                    <div class="col-sm">
+                                        <div id="invested-overview" data-colors='["#5156be", "#34c38f"]' class="apex-charts"></div>
+                                    </div>
+                                    <div class="col-sm align-self-center">
+                                        <div id="invested-overview-info" class="mt-4 mt-sm-0">
+                                            <p class="mb-1">Monto de Pagos</p>
+                                            <h4>$0</h4>
+
+                                            <div class="row g-0 mt-4">
+                                                <div class="col-6">
+                                                    <div>
+                                                        <p class="mb-2 text-muted text-uppercase font-size-11">
+                                                            Pagos a Productores</p>
+                                                        <h5 id="pagos-productores" class="fw-medium">$0</h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div>
+                                                        <p class="mb-2 text-muted text-uppercase font-size-11">
+                                                            Pagos por Servicios</p>
+                                                        <h5 id="pagos-servicios" class="fw-medium">$0</h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-2">
+                                                <a href="#" onclick="parent.cambiarIframe('/public/assets/views/pagos.html')" class="btn btn-primary btn-sm">Ver más <i
+                                                        class="mdi mdi-arrow-right ms-1"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end col -->
+
+                    <div class="col-xl-4">
+                        <!-- card -->
+                        <div class="card bg-primary text-white shadow-primary card-h-100">
+                            <!-- card body -->
+                            <div class="card-body p-0">
+                                <div id="carouselExampleCaptions" class="carousel slide text-center widget-carousel" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        <div class="carousel-item active">
+                                            <div class="text-center p-4">
+                                                <i class="mdi mdi-truck-fast widget-box-1-icon"></i>
+                                                <div class="avatar-md m-auto">
+                                                    <span class="avatar-title rounded-circle bg-light-subtle text-white font-size-24">
+                                                        <i class="mdi mdi-truck"></i>
+                                                    </span>
+                                                </div>
+                                                <h4 class="mt-3 lh-base fw-normal text-white">Acceso Rápido a <b>Carguíos</b></h4>
+                                                <p class="text-white-50 font-size-13">Gestiona los carguíos de tus productores. Registra nuevos lotes, verifica el estado de tus carguíos y lleva el control de tu inventario.
+                                                </p>
+                                                <a href="#" onclick="parent.cambiarIframe('/public/assets/views/carguios.html')" class="btn btn-light btn-sm">
+                                                    Ver Carguíos <i class="mdi mdi-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <!-- end carousel-item -->
+                                        <div class="carousel-item">
+                                            <div class="text-center p-4">
+                                                <i class="mdi mdi-cash-multiple widget-box-1-icon"></i>
+                                                <div class="avatar-md m-auto">
+                                                    <span class="avatar-title rounded-circle bg-light-subtle text-white font-size-24">
+                                                        <i class="mdi mdi-cash"></i>
+                                                    </span>
+                                                </div>
+                                                <h4 class="mt-3 lh-base fw-normal text-white">Acceso Rápido a <b>Pagos</b></h4>
+                                                <p class="text-white-50 font-size-13">Gestiona los pagos a productores y servicios. Registra nuevos pagos, verifica el estado de tus pagos pendientes y lleva el control de tus finanzas.</p>
+                                                <a href="#" onclick="parent.cambiarIframe('/public/assets/views/pagos.html')" class="btn btn-light btn-sm">
+                                                    Ver Pagos <i class="mdi mdi-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <!-- end carousel-item -->
+                                        <div class="carousel-item">
+                                            <div class="text-center p-4">
+                                                <i class="mdi mdi-barcode-scan widget-box-1-icon"></i>
+                                                <div class="avatar-md m-auto">
+                                                    <span class="avatar-title rounded-circle bg-light-subtle text-white font-size-24">
+                                                        <i class="mdi mdi-barcode"></i>
+                                                    </span>
+                                                </div>
+                                                <h4 class="mt-3 lh-base fw-normal text-white">Acceso Rápido a <b>Despachos</b></h4>
+                                                <p class="text-white-50 font-size-13">Gestiona los despachos a tus clientes. Registra nuevas ventas, verifica el estado de tus envíos y lleva el control de tu logística.
+                                                </p>
+                                                <a href="#" onclick="parent.cambiarIframe('/public/assets/views/despachos.html')" class="btn btn-light btn-sm">
+                                                    Ver Despachos <i class="mdi mdi-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <!-- end carousel-item -->
+                                    </div>
+                                    <!-- end carousel-inner -->
+
+                                    <div class="carousel-indicators carousel-indicators-rounded">
+                                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                                    </div>
+                                    <!-- end carousel-indicators -->
+                                </div>
+                                <!-- end carousel -->
+                            </div>
+                            <!-- end card body -->
+                        </div>
+                        <!-- end card -->
+                    </div>
+                    <!-- end col -->
+                </div>
+                <!-- end row -->
+            </div>
+            <!-- end col -->
+        </div>
+        <!-- end row -->
+
+        <div class="row">
+            <div class="col-xl-8">
+                <!-- card -->
+                <div class="card">
+                    <!-- card body -->
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap align-items-center mb-4">
+                            <h5 class="card-title me-2">Comparativa Carguíos vs Despachos</h5>
+                            <div class="ms-auto">
+                                <div>
+                                    <button type="button" class="btn btn-soft-primary btn-sm">
+                                        TODO
+                                    </button>
+                                    <button type="button" class="btn btn-soft-secondary btn-sm">
+                                        1M
+                                    </button>
+                                    <button type="button" class="btn btn-soft-secondary btn-sm">
+                                        6M
+                                    </button>
+                                    <button type="button" class="btn btn-soft-secondary btn-sm">
+                                        1A
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center">
+                            <div class="col-xl-8">
+                                <div>
+                                    <div id="market-overview" data-colors='["#5156be", "#34c38f"]' class="apex-charts"></div>
+                                </div>
+                            </div>
+                            <div class="col-xl-4">
+                                <div id="clientes-ranking" class="p-4">
+                                    <!-- Este contenido se actualizará dinámicamente desde JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end card -->
+                </div>
+                <!-- end col -->
+            </div>
+            <!-- end row-->
+
+            <div class="col-xl-4">
+                <!-- card -->
+                <div class="card">
+                    <!-- card body -->
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap align-items-center mb-4">
+                            <h5 id="sales-locations-title" class="card-title me-2">Distribución Geográfica
+                            </h5>
+                            <div class="ms-auto">
+                                <div class="dropdown">
+                                    <a class="dropdown-toggle text-reset" href="#" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="text-muted font-size-12">Filtrar por:</span> <span class="fw-medium">Región<i
+                                                class="mdi mdi-chevron-down ms-1"></i></span>
+                                    </a>
+
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                                        <a class="dropdown-item" href="#">Todos</a>
+                                        <a class="dropdown-item" href="#">Costa</a>
+                                        <a class="dropdown-item" href="#">Sierra</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sales-by-locations" data-colors='["#5156be"]' style="height: 250px"></div>
+
+                        <div class="px-2 py-2">
+                            <p class="mb-1"><span id="region-lima">Lima</span> <span id="porcentaje-lima" class="float-end">45%</span></p>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div id="progress-lima" class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+
+                            <p class="mt-3 mb-1"><span id="region-cusco">Cusco</span> <span id="porcentaje-cusco" class="float-end">35%</span></p>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div id="progress-cusco" class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+
+                            <p class="mt-3 mb-1"><span id="region-ancash">Ancash</span> <span id="porcentaje-ancash" class="float-end">20%</span></p>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div id="progress-ancash" class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end card body -->
+                </div>
+                <!-- end card -->
+            </div>
+            <!-- end col -->
+        </div>
+        <!-- end row -->
+
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Últimos Carguíos</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Productor</th>
+                                        <th>Costales</th>
+                                        <th>Peso</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ultimos-carguios">
+                                    <!-- Este contenido se actualizará dinámicamente desde JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <a href="#" onclick="parent.cambiarIframe('/public/assets/views/carguios.html')" class="btn btn-primary btn-sm">Ver todos los
+                                carguíos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Últimos Despachos</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Cliente</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ultimos-despachos">
+                                    <!-- Este contenido se actualizará dinámicamente desde JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <a href="#" onclick="parent.cambiarIframe('/public/assets/views/despachos.html')" class="btn btn-primary btn-sm">Ver todos los
+                                despachos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- container-fluid -->
+
+    <!-- JAVASCRIPT -->
+    <script src="/public/assets/js/jquery.min.js"></script>
+    <script src="/public/assets/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Firebase SDK - Añadir antes de los scripts que dependen de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+    <!-- Inicialización de Firebase -->
+    <script>
+        // Intentar usar la instancia de Firebase del padre si está disponible
+        try {
+            if (window.parent && window.parent.firebase) {
+                window.firebase = window.parent.firebase;
+                console.log("Usando la instancia de Firebase del padre");
+
+                // Verificar si firebase está realmente inicializado
+                if (firebase.apps && firebase.apps.length > 0) {
+                    // Obtener la instancia de Firestore
+                    const db = firebase.firestore();
+                    console.log("Conexión a Firestore establecida correctamente en dashboard.html");
+
+                    // Hacer disponible globalmente para dashboard.init.js
+                    window.db = db;
+                } else {
+                    throw new Error("Firebase no está inicializado en el padre");
+                }
+            } else {
+                throw new Error("No se pudo acceder a la instancia de Firebase del padre");
+            }
+        } catch (error) {
+            console.error("Error al acceder a Firebase:", error);
+            console.log("Inicializando Firebase localmente en dashboard.html");
+
+            // Inicializar Firebase localmente si no está disponible en el padre
+            const firebaseConfig = {
+                apiKey: "AIzaSyBy_V4hsuhMrbq7NBTMG289ievV-nhzf68",
+                authDomain: "abigranos.firebaseapp.com",
+                projectId: "abigranos",
+                storageBucket: "abigranos.firebasestorage.app",
+                messagingSenderId: "405475347978",
+                appId: "1:405475347978:web:a0c9bb724903cca76b99f3"
+            };
+
+            // Inicializar Firebase solo si no está ya inicializado
+            if (!firebase.apps || !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                console.log("Firebase inicializado localmente en dashboard.html");
+            } else {
+                console.log("Firebase ya estaba inicializado en dashboard.html");
+            }
+
+            // Obtener la instancia de Firestore
+            const db = firebase.firestore();
+            console.log("Conexión a Firestore establecida localmente en dashboard.html");
+
+            // Hacer disponible globalmente para dashboard.init.js
+            window.db = db;
+        }
+    </script>
+
+    <!-- Numeral.js para formateo de números -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+
+    <!-- apexcharts -->
+    <script src="/public/assets/js/apexcharts.min.js"></script>
+
+    <!-- Plugins js-->
+    <script src="/public/assets/js/jquery-jvectormap-1.2.2.min.js"></script>
+    <script src="/public/assets/js/jquery-jvectormap-world-mill-en.js"></script>
+
+    <!-- dashboard init -->
+    <script src="/public/assets/js/dashboard.init.js"></script>
+
+    <script>
+        // Notificar al padre cuando el contenido cambia de tamaño
+        function notifyParentAboutSize() {
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'iframeContentResize',
+                    height: document.body.scrollHeight
+                }, '*');
+            }
+        }
+
+        // Llamar cuando se carga la página y cuando cambia el tamaño de la ventana
+        window.addEventListener('load', notifyParentAboutSize);
+        window.addEventListener('resize', notifyParentAboutSize);
+    </script>
+</body>
+
+</html>
