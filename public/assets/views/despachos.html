@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despachos - Gestión de Ventas</title>
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+
+    <!-- JAVASCRIPT -->
+    <!-- jQuery first, then other libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- App js -->
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/viewsjs/despachos.js"></script>
+
+    <style>
+        /* ...existing styles... */
+        .table th { cursor: pointer; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">Despachos</a>
+            <!-- ...existing navigation... -->
+        </div>
+    </nav>
+    <div class="container py-4">
+        <!-- Accordion para secciones -->
+        <div class="accordion" id="mainAccordion">
+            <!-- Sección 1: Historial de Ventas -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingVentas">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVentas" aria-expanded="true" aria-controls="collapseVentas">
+                        Histórico de Ventas
+                    </button>
+                </h2>
+                <div id="collapseVentas" class="accordion-collapse collapse show" aria-labelledby="headingVentas" data-bs-parent="#mainAccordion">
+                    <div class="accordion-body">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="ventasTable" class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Código de Venta</th>
+                                                <th>NCompra</th>
+                                                <th>Cliente</th>
+                                                <th>Fecha</th>
+                                                <th>Lotes Vendidos</th>
+                                                <th>Total Vendido</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Las ventas se cargarán dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sección 2: Registro de Venta y Lotes Disponibles -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingRegistro">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRegistro" aria-expanded="false" aria-controls="collapseRegistro">
+                        Registrar Nueva Venta y Ver Lotes
+                    </button>
+                </h2>
+                <div id="collapseRegistro" class="accordion-collapse collapse" aria-labelledby="headingRegistro" data-bs-parent="#mainAccordion">
+                    <div class="accordion-body">
+                        <!-- Formulario de Registro de Venta -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                Registrar Nueva Venta
+                            </div>
+                            <div class="card-body">
+                                <form id="ventaForm">
+                                    <div class="mb-3">
+                                        <label for="cliente" class="form-label">Cliente</label>
+                                        <select class="form-select" id="cliente">
+                                            <option value="ALISUR">ALISUR</option>
+                                            <option value="COLOREXA">COLOREXA</option>
+                                            <option value="otro">Otro</option>
+                                        </select>
+                                    </div>
+                                    <fieldset class="border p-3 mb-3">
+                                        <legend class="w-auto px-2">Datos de la Orden de Compra</legend>
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="ordenCompraNumero" class="form-label">Número de Orden</label>
+                                                <input type="text" class="form-control" id="ordenCompraNumero" placeholder="Ingrese n° de orden">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="ordenCompraFecha" class="form-label">Fecha de Orden</label>
+                                                <input type="date" class="form-control" id="ordenCompraFecha">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="ordenCompraObservaciones" class="form-label">Observaciones</label>
+                                                <textarea class="form-control" id="ordenCompraObservaciones" rows="1" placeholder="Detalles de la orden"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <div class="mb-3">
+                                        <p class="small text-muted">Seleccione los lotes disponibles abajo para agregar la cantidad a vender. El total se calculará según la suma de las cantidades seleccionadas.</p>
+                                        <button type="submit" class="btn btn-primary">Registrar Venta</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Lotes Disponibles para Venta -->
+                        <div class="card">
+                            <div class="card-header">
+                                Lotes Disponibles para Venta
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <input type="checkbox" id="toggleSoldOut">
+                                    <label for="toggleSoldOut" class="ms-1">Ocultar lotes vendidos en su totalidad</label>
+                                </div>
+                                <div class="table-responsive">
+                                    <table id="lotesVentaTable" class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Seleccionar</th>
+                                                <th>Código</th>
+                                                <th>Fecha</th>
+                                                <th>Productor</th>
+                                                <th>Procedencia</th>
+                                                <th>Peso Neto</th>
+                                                <th>Precio/Kg</th>
+                                                <th>Vendido</th>
+                                                <th>Saldo</th>
+                                                <th>Ventas</th>
+                                                <th>Cantidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Los lotes se cargarán dinámicamente desde la BD -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal de confirmación para eliminar venta -->
+        <div class="modal fade" id="deleteSaleModal" tabindex="-1" aria-labelledby="deleteSaleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteSaleModalLabel">Confirmar Eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Está seguro de eliminar la venta <span id="saleCodeToDelete"></span>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" id="confirmDeleteSale" class="btn btn-danger">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/numeral@2.0.6/numeral.min.js"></script>
+    <script src="/public/assets/js/viewsjs/despachos.js"></script>
+</body>
+</html>
